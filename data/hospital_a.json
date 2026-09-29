@@ -1,0 +1,49 @@
+{
+  "_note": "Hospital A openEHR CDR: compositions keyed by ehr_id. Shapes are simplified openEHR content, keyed by archetype. All content is synthetic.",
+  "ehrs": {
+    "ehr-5c1e22": [
+      {"uid": "3f1a0c2e-0001::hospital-a.demo::1", "template": "Renal outpatient summary", "archetype": "openEHR-EHR-EVALUATION.problem_diagnosis.v1", "record_class": "condition", "committed": "@-120T15",
+       "data": {"diagnosis": {"terminology": "ICD10", "code": "E11.9", "value": "Type 2 diabetes mellitus without complications"}, "status": "active", "onset": "@-3600"}},
+      {"uid": "3f1a0c2e-0002::hospital-a.demo::1", "template": "Renal outpatient summary", "archetype": "openEHR-EHR-EVALUATION.problem_diagnosis.v1", "record_class": "condition", "committed": "@-120T15",
+       "data": {"diagnosis": {"terminology": "ICD10", "code": "N18.3", "value": "Chronic kidney disease, stage 3"}, "status": "active", "onset": "@-400"}},
+      {"uid": "3f1a0c2e-0003::hospital-a.demo::1", "template": "Renal outpatient summary", "archetype": "openEHR-EHR-EVALUATION.problem_diagnosis.v1", "record_class": "condition", "committed": "@-120T15",
+       "data": {"diagnosis": {"terminology": "ICD10", "code": "I10", "value": "Essential (primary) hypertension"}, "status": "active", "onset": "@-5000"}},
+
+      {"uid": "3f1a0c2e-0010::hospital-a.demo::1", "template": "Renal outpatient summary", "archetype": "openEHR-EHR-INSTRUCTION.medication_order.v3", "record_class": "medication", "committed": "@-120T15",
+       "data": {"medication": {"terminology": "local::HA-FORMULARY", "code": "HA-F-0412", "value": "Metformin 500mg tab"}, "dose_text": "500 mg twice daily (reduced: eGFR)", "dose_qty": 1, "freq_per_day": 2, "status": "active", "order_type": "clinic recommendation"}},
+      {"uid": "3f1a0c2e-0011::hospital-a.demo::1", "template": "Renal outpatient summary", "archetype": "openEHR-EHR-INSTRUCTION.medication_order.v3", "record_class": "medication", "committed": "@-120T15",
+       "data": {"medication": {"terminology": "local::HA-FORMULARY", "code": "HA-F-0233", "value": "Ramipril 5mg cap"}, "dose_text": "5 mg once daily", "dose_qty": 1, "freq_per_day": 1, "status": "active", "order_type": "clinic medication list"}},
+      {"uid": "3f1a0c2e-0012::hospital-a.demo::1", "template": "Renal outpatient summary", "archetype": "openEHR-EHR-INSTRUCTION.medication_order.v3", "record_class": "medication", "committed": "@-120T15",
+       "data": {"medication": {"terminology": "local::HA-FORMULARY", "code": "HA-F-0301", "value": "Atorvastatin 20mg tab"}, "dose_text": "20 mg at night", "dose_qty": 1, "freq_per_day": 1, "status": "active", "order_type": "clinic medication list"}},
+      {"uid": "3f1a0c2e-0013::hospital-a.demo::1", "template": "Renal outpatient summary", "archetype": "openEHR-EHR-INSTRUCTION.medication_order.v3", "record_class": "medication", "committed": "@-120T15",
+       "data": {"medication": {"terminology": "local::HA-FORMULARY", "code": "HA-F-0877", "value": "Amlodipine 5mg tab"}, "dose_text": "5 mg once daily", "dose_qty": 1, "freq_per_day": 1, "status": "active", "order_type": "clinic medication list"}},
+
+      {"uid": "3f1a0c2e-0020::hospital-a.demo::1", "template": "Renal outpatient summary", "archetype": "openEHR-EHR-EVALUATION.adverse_reaction_risk.v1", "record_class": "allergy", "committed": "@-120T15",
+       "data": {"substance": {"terminology": "SNOMED-CT", "code": "294505008", "value": "Allergy to amoxicillin"}, "reaction": "Urticaria", "criticality": "low", "status": "active"}},
+
+      {"uid": "3f1a0c2e-0030::hospital-a.demo::1", "template": "Laboratory result report", "archetype": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1", "record_class": "result", "committed": "@-520T14",
+       "data": {"analyte": {"terminology": "LOINC", "code": "14682-9"}, "magnitude": 98, "units": "umol/L", "time": "@-520", "accession": "ACC-A-0520"}},
+      {"uid": "3f1a0c2e-0031::hospital-a.demo::1", "template": "Laboratory result report", "archetype": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1", "record_class": "result", "committed": "@-520T14",
+       "data": {"analyte": {"terminology": "LOINC", "code": "98979-8"}, "magnitude": 55, "units": "mL/min/{1.73_m2}", "time": "@-520", "accession": "ACC-A-0520"}},
+      {"uid": "3f1a0c2e-0032::hospital-a.demo::1", "template": "Laboratory result report", "archetype": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1", "record_class": "result", "committed": "@-400T14",
+       "data": {"analyte": {"terminology": "LOINC", "code": "14682-9"}, "magnitude": 105, "units": "umol/L", "time": "@-400", "accession": "ACC-A-0400"}},
+      {"uid": "3f1a0c2e-0033::hospital-a.demo::1", "template": "Laboratory result report", "archetype": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1", "record_class": "result", "committed": "@-400T14",
+       "data": {"analyte": {"terminology": "LOINC", "code": "98979-8"}, "magnitude": 51, "units": "mL/min/{1.73_m2}", "time": "@-400", "accession": "ACC-A-0400"}},
+      {"uid": "3f1a0c2e-0034::hospital-a.demo::1", "template": "Laboratory result report", "archetype": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1", "record_class": "result", "committed": "@-250T14",
+       "data": {"analyte": {"terminology": "LOINC", "code": "14682-9"}, "magnitude": 112, "units": "umol/L", "time": "@-250", "accession": "ACC-A-0250"}},
+      {"uid": "3f1a0c2e-0035::hospital-a.demo::1", "template": "Laboratory result report", "archetype": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1", "record_class": "result", "committed": "@-250T14",
+       "data": {"analyte": {"terminology": "LOINC", "code": "98979-8"}, "magnitude": 47, "units": "mL/min/{1.73_m2}", "time": "@-250", "accession": "ACC-A-0250"}},
+      {"uid": "3f1a0c2e-0036::hospital-a.demo::1", "template": "Laboratory result report", "archetype": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1", "record_class": "result", "committed": "@-120T14",
+       "data": {"analyte": {"terminology": "LOINC", "code": "14682-9"}, "magnitude": 121, "units": "umol/L", "time": "@-121", "accession": "ACC-A-0121"}},
+      {"uid": "3f1a0c2e-0037::hospital-a.demo::1", "template": "Laboratory result report", "archetype": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1", "record_class": "result", "committed": "@-120T14",
+       "data": {"analyte": {"terminology": "LOINC", "code": "98979-8"}, "magnitude": 42, "units": "mL/min/{1.73_m2}", "time": "@-121", "accession": "ACC-A-0121"}},
+      {"uid": "3f1a0c2e-0038::hospital-a.demo::1", "template": "Laboratory result report", "archetype": "openEHR-EHR-OBSERVATION.laboratory_test_result.v1", "record_class": "result", "committed": "@-120T14",
+       "data": {"analyte": {"terminology": "LOINC", "code": "2823-3"}, "magnitude": 5.1, "units": "mmol/L", "time": "@-121", "accession": "ACC-A-0121"}},
+
+      {"uid": "3f1a0c2e-0040::hospital-a.demo::1", "template": "Renal outpatient summary", "archetype": "composition context", "record_class": "encounter", "committed": "@-120T15",
+       "data": {"setting": "Outpatient", "type": "Renal outpatient clinic", "start": "@-120T10", "end": "@-120T11", "reason": "CKD review", "location": "Hospital A renal unit"}},
+      {"uid": "3f1a0c2e-0050::hospital-a.demo::1", "template": "Clinic letter", "archetype": "openEHR-EHR-COMPOSITION.report.v1", "record_class": "document", "committed": "@-118T12",
+       "data": {"title": "Renal clinic letter", "doc_type": "Outpatient clinic letter", "author": "Consultant nephrologist", "text": "Dear GP,\n\nReviewed in renal clinic. eGFR 42 with slow decline; CKD stage 3 (ICD-10 N18.3). Potassium 5.1.\n\nPlan: please reduce metformin to 500 mg twice daily. Continue ramipril 5 mg and atorvastatin 20 mg. Amlodipine as per current list. Repeat U&E in 3 months.\n\nNo known drug allergies other than amoxicillin (urticaria)."}}
+    ]
+  }
+}

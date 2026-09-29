@@ -1,0 +1,44 @@
+{
+  "_note": "Onboarding pack submitted for the archived previous-practice system: a source description and the concept maps needed to read it. Importing it creates a draft change request; nothing reaches the broker until the change is approved and applied. Read v2 codes are used illustratively and must be verified before real use.",
+  "title": "Onboard archived previous-practice system (gp-legacy)",
+  "rationale": "The patient's previous practice record holds diagnoses and prescribing history (including a drug stopped for hypoglycaemia) that the current GP record does not. The system is archived but its governed query service is available read-only.",
+  "source": {
+    "id": "gp-legacy", "label": "Previous GP practice (archived system)", "short": "Prev GP",
+    "owner": "Former Hillside Surgery (synthetic)",
+    "authority": "Historic record only: authoritative for care given before the patient transferred out",
+    "lifecycle": "live",
+    "capability": {
+      "interface": "sql-service", "endpoint": "gp-legacy",
+      "purposes_accepted": ["direct-care"],
+      "expected_latency_ms": 400,
+      "conformance": {"service": "Governed query service v2 (read-only archive)", "last_tested": null, "result": null}
+    },
+    "quality": ["Coded in Read v2; migrated archive, no new entries since transfer", "Medication statuses were closed at transfer"],
+    "exposes": [
+      {"record_class": "condition", "native": "PROBLEMS view", "code_system": "http://read.info/readv2", "mapping": {"id": "map:gpl-condition", "version": "1.0", "lifecycle": "approved", "concept_map": "cm:readv2-snomed"}},
+      {"record_class": "medication", "native": "MEDICATIONS view", "code_system": "urn:demo:legacy-drug", "mapping": {"id": "map:gpl-medication", "version": "1.0", "lifecycle": "approved", "concept_map": "cm:legacy-drug-dmd"}}
+    ]
+  },
+  "concept_maps": [
+    {
+      "id": "cm:readv2-snomed", "version": "1.0", "lifecycle": "approved",
+      "source": "http://read.info/readv2", "target": "http://snomed.info/sct",
+      "author": "Terminology and Mapping Authority", "reviewed": null,
+      "elements": [
+        {"code": "C10F.", "display": "Type 2 diabetes mellitus", "target": "44054006", "grade": "exact", "lifecycle": "approved"},
+        {"code": "G20..", "display": "Essential hypertension", "target": "59621000", "grade": "exact", "lifecycle": "approved"},
+        {"code": "F26..", "display": "Migraine", "target": "37796009", "grade": "exact", "lifecycle": "approved"},
+        {"code": "H33..", "display": "Asthma", "target": "195967001", "grade": "exact", "lifecycle": "approved"}
+      ]
+    },
+    {
+      "id": "cm:legacy-drug-dmd", "version": "1.0", "lifecycle": "approved",
+      "source": "urn:demo:legacy-drug", "target": "urn:demo:dmd",
+      "author": "Terminology and Mapping Authority", "reviewed": null,
+      "elements": [
+        {"code": "LD-GLIC80", "display": "Gliclazide 80mg tablets", "target": "VMP-GLI80", "grade": "exact", "lifecycle": "approved"},
+        {"code": "LD-MET500", "display": "Metformin 500mg tablets", "target": "VMP-MET500", "grade": "exact", "lifecycle": "approved"}
+      ]
+    }
+  ]
+}

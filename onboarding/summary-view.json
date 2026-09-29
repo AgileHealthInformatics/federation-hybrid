@@ -1,0 +1,39 @@
+{
+  "_note": "Onboarding pack for a materialised view. It is registered as a derived source: governed, tested and versioned like any participant, never federated with its own originals, and never authoritative.",
+  "title": "Register materialised patient summary view (summary-view)",
+  "rationale": "Urgent and emergency care needs a patient summary that answers in milliseconds and survives source outages. Federation alone cannot guarantee either: the slowest source sets the pace, and an outage leaves a gap. The design's materialisation triggers that apply are latency and resilience. The view is built through the broker, so it keeps reconciliation flags and lineage, and every entry states its age and catalogue version.",
+  "source": {
+    "id": "summary-view", "label": "Patient summary (materialised view)", "short": "Summary view",
+    "owner": "Federation service (synthetic)",
+    "authority": "Derived, not authoritative: a projection of the federated record, rebuilt from the sources",
+    "lifecycle": "live",
+    "derived": true,
+    "capability": {
+      "interface": "materialised-view", "endpoint": "summary-view",
+      "purposes_accepted": ["direct-care"],
+      "expected_latency_ms": 20,
+      "conformance": {"service": "Materialised IPS summary", "last_tested": null, "result": null}
+    },
+    "materialisation": {
+      "sponsor": "Urgent and emergency care programme (synthetic)",
+      "use_case": "Emergency care summary when sources are slow or unavailable; population lists for proactive review",
+      "triggers": ["latency", "resilience", "analytical shape"],
+      "refresh": "Every 24 hours, and after any catalogue change (manual in this demonstrator)",
+      "max_age_hours": 24,
+      "build_deadline_seconds": 8,
+      "review_date": "2027-03-31"
+    },
+    "quality": ["Built through the broker: carries reconciliation flags, provenance and the catalogue version", "As old as its last build; changes since are not shown"],
+    "exposes": [
+      {"record_class": "condition", "native": "materialised summary", "code_system": null, "mapping": {"id": "map:view-condition", "version": "1.0", "lifecycle": "approved"}},
+      {"record_class": "medication", "native": "materialised summary", "code_system": null, "mapping": {"id": "map:view-medication", "version": "1.0", "lifecycle": "approved"}},
+      {"record_class": "dispense", "native": "materialised summary", "code_system": null, "mapping": {"id": "map:view-dispense", "version": "1.0", "lifecycle": "approved"}},
+      {"record_class": "allergy", "native": "materialised summary", "code_system": null, "mapping": {"id": "map:view-allergy", "version": "1.0", "lifecycle": "approved"}},
+      {"record_class": "immunization", "native": "materialised summary", "code_system": null, "mapping": {"id": "map:view-immunization", "version": "1.0", "lifecycle": "approved"}},
+      {"record_class": "result", "native": "materialised summary", "code_system": null, "mapping": {"id": "map:view-result", "version": "1.0", "lifecycle": "approved"}},
+      {"record_class": "vital-sign", "native": "materialised summary", "code_system": null, "mapping": {"id": "map:view-vital", "version": "1.0", "lifecycle": "approved"}},
+      {"record_class": "encounter", "native": "materialised summary", "code_system": null, "mapping": {"id": "map:view-encounter", "version": "1.0", "lifecycle": "approved"}},
+      {"record_class": "document", "native": "materialised summary", "code_system": null, "mapping": {"id": "map:view-document", "version": "1.0", "lifecycle": "approved"}}
+    ]
+  }
+}

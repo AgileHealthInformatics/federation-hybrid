@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Control-plane Workbench</title>
+<style>
+:root{
+  --bg:#f4f5f3;--panel:#ffffff;--ink:#1c1e1d;--muted:#666a67;--faint:#8b8f8c;--line:#e1e3df;--soft:#f7f8f6;
+  --accent:#1f5f8b;--onaccent:#ffffff;--band:#2b2440;--bandink:#f3f1f8;--bandmuted:#b9b1cc;
+  --ok:#2b7a4b;--okbg:#e4f2e9;--warn:#8a5a00;--warnbg:#fbefd6;--bad:#a1332b;--badbg:#f8e1de;--info:#4b4f9a;--infobg:#e8e9f7;--mute:#5e625f;--mutebg:#eceeeb;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#141615;--panel:#1d201e;--ink:#eaece9;--muted:#a4a9a5;--faint:#7d827e;--line:#313532;--soft:#232624;
+  --accent:#7fb3d9;--onaccent:#0f2433;--band:#1b1629;--bandink:#eeeaf6;--bandmuted:#a39ab8;
+  --ok:#7fd19c;--okbg:#1b3124;--warn:#f0c46a;--warnbg:#3a2e14;--bad:#f09a90;--badbg:#3d1f1c;--info:#b1b5f0;--infobg:#25274a;--mute:#b6bab7;--mutebg:#2a2d2b;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,select,input,textarea{font:inherit;color:inherit}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 20px;background:var(--band);color:var(--bandink)}
+.top h1{font-size:15px;margin:0;font-weight:650}
+.synth{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#1c1400;background:#e8c46a;padding:2px 8px;border-radius:4px}
+.top .right{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.top label{font-size:12px;color:var(--bandmuted);display:flex;gap:6px;align-items:center}
+.top select{padding:5px 8px;border-radius:6px;border:1px solid #4a4160;background:#3a3252;color:var(--bandink)}
+.vchip{background:#3a3252;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:650}
+.top a{color:var(--bandink);font-size:13px}
+.layout{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 50px)}
+@media (max-width:860px){.layout{grid-template-columns:1fr}.nav{display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:6px}.nav a{white-space:nowrap}}
+.layout>*{min-width:0}
+.nav{border-right:1px solid var(--line);padding:12px 8px;background:var(--panel)}
+.nav a{display:flex;justify-content:space-between;gap:8px;padding:7px 10px;border-radius:6px;color:var(--ink);text-decoration:none;cursor:pointer}
+.nav a:hover{background:var(--soft)}
+.nav a.on{background:var(--infobg);color:var(--info);font-weight:600}
+.nav .cnt{font-size:11px;background:var(--warnbg);color:var(--warn);border-radius:999px;padding:0 7px;font-weight:700}
+.main{padding:18px 22px 60px}
+h2{font-size:17px;margin:0 0 4px;font-weight:650}
+h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:18px 0 8px;font-weight:650}
+.sub{color:var(--muted);font-size:13px;margin:0 0 14px;max-width:880px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.card h3{margin-top:0}
+.big{font-size:26px;font-weight:700}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:650;background:var(--soft)}
+tr:last-child td{border-bottom:0}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--soft)}
+.pill{display:inline-block;font-size:11px;font-weight:650;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.l-approved,.l-live,.l-applied,.l-pass,.l-ok,.l-confirmed{background:var(--okbg);color:var(--ok)}
+.l-proposed,.l-reviewed,.l-onboarding,.l-draft,.l-warn,.l-probabilistic,.l-below-threshold{background:var(--warnbg);color:var(--warn)}
+.l-deprecated,.l-rejected,.l-fail,.l-retired,.l-suspended{background:var(--badbg);color:var(--bad)}
+.l-withdrawn,.l-retiring{background:var(--mutebg);color:var(--mute)}
+.s-hides{background:var(--badbg);color:var(--bad)}
+.s-raises{background:var(--warnbg);color:var(--warn)}
+.s-visible,.s-other{background:var(--mutebg);color:var(--mute)}
+.s-missing-from-view{background:var(--badbg);color:var(--bad)}
+.s-outdated-in-view{background:var(--warnbg);color:var(--warn)}
+.btn{padding:6px 12px;border:0;border-radius:6px;background:var(--accent);color:var(--onaccent);font-weight:600;cursor:pointer;font-size:13px}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+.btn.danger{background:var(--bad);color:#fff}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.sm{padding:2px 8px;font-size:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+code,.mono{font:12px var(--mono)}
+.muted{color:var(--muted)}
+.kv{display:grid;grid-template-columns:160px 1fr;gap:4px 14px;font-size:13px}
+.kv .k{color:var(--muted)}
+textarea,input[type=text],select.f{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--soft)}
+textarea{min-height:70px;resize:vertical}
+textarea.json{font:12px/1.45 var(--mono);min-height:150px}
+.ops{margin:6px 0;padding-left:18px}
+.gate{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:6px;margin:4px 0;font-size:13px}
+.gate.ok{background:var(--okbg);color:var(--ok)}
+.gate.no{background:var(--warnbg);color:var(--warn)}
+.toast{position:fixed;right:16px;bottom:16px;max-width:460px;padding:12px 14px;border-radius:8px;background:var(--bad);color:#fff;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:10}
+.toast.good{background:var(--ok)}
+.ev{font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--line)}
+.ev:last-child{border-bottom:0}
+.tot{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+.tot span{padding:4px 10px;border-radius:6px;font-weight:650;font-size:13px}
+.empty{color:var(--muted);font-style:italic;padding:8px 0}
+.split{display:grid;grid-template-columns:minmax(260px,360px) 1fr;gap:16px}
+@media (max-width:1100px){.split{grid-template-columns:1fr}}
+.list .item{padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer}
+.list .item:last-child{border-bottom:0}
+.list .item.on{background:var(--infobg)}
+.list .item:hover{background:var(--soft)}
+.spin{opacity:.6}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Federation Control-Plane Workbench</h1><span class="synth">Synthetic · demonstrator</span>
+  <div class="right">
+    <span class="vchip" id="vchip">…</span>
+    <label>Acting as <select id="persona"></select></label>
+    <a href="/">Record view &rarr;</a>
+  </div>
+</div>
+<div class="layout">
+  <nav class="nav" id="nav"></nav>
+  <main class="main" id="main"><div class="empty">Loading…</div></main>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pill = (s, txt) => `<span class="pill l-${esc(String(s).replace(/\s+/g,"-"))}">${esc(txt ?? s)}</span>`;
+const when = s => s ? new Date(s).toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}) : "—";
+const ROLE = {"clinical-safety-officer":"Clinical safety officer","identity-steward":"Identity steward","informatics-analyst":"Informatics analyst"};
+let PERSONAS = [], PANE = "overview", SEL = null, OV = null, PREFILL = null;
+
+function persona(){ return $("#persona").value; }
+function toast(msg, good){ const t = document.createElement("div"); t.className = "toast"+(good?" good":""); t.textContent = msg; document.body.appendChild(t); setTimeout(()=>t.remove(), good?3000:6000); }
+async function api(path, opts={}){
+  const r = await fetch(path, {...opts, headers:{"Content-Type":"application/json","X-Persona":persona(), ...(opts.headers||{})}});
+  const body = await r.json().catch(()=>({}));
+  if(!r.ok){ throw new Error(typeof body.detail==="string" ? body.detail : JSON.stringify(body.detail||body)); }
+  return body;
+}
+async function act(btn, fn, okMsg){
+  const label = btn?.textContent; if(btn){btn.disabled = true; btn.textContent = "Working…";}
+  try{ const r = await fn(); if(okMsg) toast(okMsg, true); return r; }
+  catch(e){ toast(e.message); }
+  finally{ if(btn){btn.disabled = false; btn.textContent = label;} }
+}
+
+async function init(){
+  PERSONAS = await api("/api/wb/personas");
+  let saved = "cso"; try{ saved = localStorage.getItem("fhr-persona") || "cso"; }catch(e){}
+  $("#persona").innerHTML = PERSONAS.map(p=>`<option value="${p.id}" ${p.id===saved?"selected":""}>${esc(p.name)} · ${esc(p.label)}</option>`).join("");
+  $("#persona").onchange = () => { try{ localStorage.setItem("fhr-persona", persona()); }catch(e){} render(); };
+  render();
+}
+async function render(){
+  OV = await api("/api/wb/overview");
+  $("#vchip").textContent = `Catalogue v${OV.version}`;
+  const nav = [["overview","Overview"],["changes","Change requests",OV.drafts.length],["sources","Sources"],["mappings","Mappings"],["identity","Identity",OV.identity_attention],["versions","Versions"],["replay","Replay"],["view","Materialised view"]];
+  $("#nav").innerHTML = nav.map(([id,l,n])=>`<a data-p="${id}" class="${PANE===id?"on":""}"><span>${l}</span>${n?`<span class="cnt">${n}</span>`:""}</a>`).join("");
+  document.querySelectorAll("#nav a").forEach(a=>a.onclick=()=>{PANE=a.dataset.p; SEL=null; render();});
+  $("#main").innerHTML = `<div class="empty">Loading…</div>`;
+  $("#main").innerHTML = await PANES[PANE]();
+  wire();
+}
+function wire(){
+  document.querySelectorAll("[data-cr]").forEach(el=>el.onclick=()=>{PANE="changes"; SEL=+el.dataset.cr; render();});
+  document.querySelectorAll("[data-propose]").forEach(el=>el.onclick=()=>{PREFILL = JSON.parse(el.dataset.propose); PANE="changes"; SEL="new"; render();});
+  (WIRE[PANE]||(()=>{}))();
+}
+
+const PANES = {
+async overview(){
+  const e = OV.exposure_lifecycles, m = OV.element_lifecycles;
+  const me = PERSONAS.find(p=>p.id===persona());
+  return `<h2>Overview</h2><p class="sub">The control plane is the catalogue, terminology and identity content the broker plans against. It changes only through reviewed change requests. Every change creates a new catalogue version, and every record states which version governed it.</p>
+  <div class="cards">
+    <div class="card"><h3>Catalogue</h3><div class="big">v${OV.version}</div><div class="muted">${OV.versions} versions · ${OV.applied} change${OV.applied===1?"":"s"} applied</div></div>
+    <div class="card"><h3>Awaiting decision</h3>${OV.drafts.length?OV.drafts.map(d=>`<div class="ev" style="cursor:pointer" data-cr="${d.id}"><strong>#${d.id}</strong> ${esc(d.title)}<div class="muted">needs ${d.required_roles.map(r=>ROLE[r]).join(" + ")}${d.has_impact?"":" · impact not yet assessed"}</div></div>`).join(""):`<div class="empty">None</div>`}</div>
+    <div class="card"><h3>Sources</h3>${OV.sources.map(s=>`<div class="ev">${esc(s.label)} ${pill(s.lifecycle)}<div class="muted mono">${esc(s.interface)}</div></div>`).join("")}</div>
+    <div class="card"><h3>Mapping lifecycle</h3><div class="ev">Record-class mappings: ${Object.entries(e).map(([k,v])=>`${pill(k)} ${v}`).join(" ")}</div><div class="ev">Concept-map elements: ${Object.entries(m).map(([k,v])=>`${pill(k)} ${v}`).join(" ")}</div>
+      <div class="ev">Identity links needing a decision: <strong>${OV.identity_attention}</strong></div></div>
+  </div>
+  <h3>You are acting as</h3><div class="card">${esc(me.name)} · ${esc(me.label)}. ${me.role==="informatics-analyst"?"You can author change requests but not approve them.":`You can approve changes that need a ${esc(me.label.toLowerCase())}, but not ones you authored.`} <span class="muted">(Personas stand in for authenticated users in this demonstrator.)</span></div>
+  <h3>Recent governance events</h3><div class="panel" style="padding:4px 14px">${OV.events.map(ev=>`<div class="ev"><span class="muted">${when(ev.at)}</span> · <strong>${esc(ev.actor)}</strong> ${esc(ev.action)}${ev.change_id?` <a href="#" data-cr="${ev.change_id}">#${ev.change_id}</a>`:""}${ev.version?` · v${ev.version}`:""}${ev.detail?`<div class="muted">${esc(ev.detail)}</div>`:""}</div>`).join("")}</div>`;
+},
+async changes(){
+  const list = await api("/api/wb/changes");
+  if(SEL===null && list.length) SEL = (list.find(c=>c.status==="draft")||list[0]).id;
+  const left = `<div class="panel list">${list.map(c=>`<div class="item ${SEL===c.id?"on":""}" data-sel="${c.id}"><div class="row" style="justify-content:space-between"><strong>#${c.id}</strong>${pill(c.status)}</div><div>${esc(c.title)}</div>
+    <div class="muted" style="font-size:12px">${esc(c.author_name)} · needs ${c.required_roles.map(r=>ROLE[r]).join(" + ")}</div>${c.impact?impactBadges(c.impact.totals):""}</div>`).join("")}</div>
+    <button class="btn ghost" id="newcr" style="width:100%">+ New change request</button>
+    <div style="margin-top:8px"><button class="btn ghost" id="pack" style="width:100%">Import onboarding pack…</button></div>`;
+  let right = "";
+  if(SEL==="new") right = newForm();
+  else if(SEL) right = await detail(SEL);
+  return `<h2>Change requests</h2><p class="sub">Each request is a set of typed operations. It needs an impact analysis against the current catalogue, a written sign-off from every required role (never the author), and, for a source going live, a conformance run that did not fail. Approval applies it as a new version.</p><div class="split"><div>${left}</div><div>${right}</div></div>`;
+},
+async sources(){
+  const list = await api("/api/wb/sources");
+  return `<h2>Sources</h2><p class="sub">What each participant claims about itself. Claims are tested: re-run the conformance harness against any live source at any time.</p>
+  ${list.map(s=>`<div class="panel" style="padding:14px"><div class="row" style="justify-content:space-between"><div><strong>${esc(s.label)}</strong> <span class="mono muted">${esc(s.id)}</span> ${pill(s.lifecycle||"live")}</div>
+    <div class="row"><button class="btn ghost sm" data-retest="${esc(s.id)}">Re-test conformance</button>
+    <button class="btn ghost sm" data-propose='${esc(JSON.stringify({title:`Change lifecycle of ${s.id}`, ops:[{op:"set_source_lifecycle",source:s.id,lifecycle:s.lifecycle==="live"?"suspended":"live"}]}))}'>Propose lifecycle change</button></div></div>
+    <div class="kv" style="margin-top:8px"><div class="k">Owner</div><div>${esc(s.owner)}</div><div class="k">Authority</div><div>${esc(s.authority)}</div>
+    <div class="k">Interface</div><div class="mono">${esc(s.capability.interface)} @ ${esc(s.capability.endpoint||s.id)}</div>
+    <div class="k">Purposes accepted</div><div>${esc(s.capability.purposes_accepted.join(", "))}</div><div class="k">Declared latency</div><div>${esc(s.capability.expected_latency_ms)} ms</div>
+    <div class="k">Record classes</div><div>${s.exposes.map(e=>`${esc(e.record_class)} ${pill(e.mapping.lifecycle)}`).join(" · ")}</div></div>
+    <div id="rt-${esc(s.id)}"></div></div>`).join("")}`;
+},
+async mappings(){
+  const m = await api("/api/wb/mappings");
+  const exp = m.exposures.map(e=>{
+    const next = e.lifecycle==="approved" ? "deprecated" : "approved";
+    const prop = {title:`${next==="approved"?"Approve":"Deprecate"} ${e.source} ${e.record_class} mapping`, ops:[{op:"set_exposure_mapping",source:e.source,record_class:e.record_class,lifecycle:next}]};
+    return `<tr><td><strong>${esc(e.source)}</strong></td><td>${esc(e.record_class)}</td><td class="muted">${esc(e.native)}</td><td class="mono">${esc(e.code_system||"—")}</td><td>${pill(e.lifecycle)} <span class="muted">v${esc(e.version)}</span>${e.note?`<div class="muted" style="font-size:12px">${esc(e.note)}</div>`:""}</td>
+    <td><button class="btn ghost sm" data-propose='${esc(JSON.stringify(prop))}'>${next==="approved"?"Propose approval":"Propose deprecation"}</button></td></tr>`;}).join("");
+  const maps = m.concept_maps.map(cm=>`<h3>${esc(cm.id)} <span style="text-transform:none;letter-spacing:0;font-weight:400">· ${esc(cm.source_name)} → ${esc(cm.target_name)} · v${esc(cm.version)} ${pill(cm.lifecycle)}</span></h3>
+    <div class="panel scroll"><table><thead><tr><th>Source code</th><th>Target</th><th>Grade</th><th>Lifecycle</th><th></th></tr></thead><tbody>${cm.elements.map(el=>{
+      const dep = {title:`Deprecate ${cm.id} ${el.code}`, ops:[{op:"set_concept_map_element",map:cm.id,code:el.code,lifecycle:"deprecated"}]};
+      const app = {title:`Approve ${cm.id} ${el.code}`, ops:[{op:"set_concept_map_element",map:cm.id,code:el.code,lifecycle:"approved"}]};
+      const regrade = {title:`Re-grade ${cm.id} ${el.code}`, ops:[{op:"set_concept_map_element",map:cm.id,code:el.code,grade:"broader"}]};
+      return `<tr><td><code>${esc(el.code)}</code> ${esc(el.display)}</td><td><code>${esc(el.target)}</code> ${esc(el.target_display||"")}</td><td>${esc(el.grade)}</td><td>${pill(el.lifecycle)}</td>
+      <td class="row"><button class="btn ghost sm" data-propose='${esc(JSON.stringify(el.lifecycle==="approved"?dep:app))}'>${el.lifecycle==="approved"?"Deprecate…":"Approve…"}</button><button class="btn ghost sm" data-propose='${esc(JSON.stringify(regrade))}'>Re-grade…</button></td></tr>`;}).join("")}</tbody></table></div>`).join("");
+  return `<h2>Mappings</h2><p class="sub">Mappings are clinical-safety artefacts. Record-class mappings say which kinds of record the broker may read from each source. Concept-map elements say how a native code is read. Only approved ones are used. Propose a change here, then assess its impact before anyone signs it off.</p>
+  <h3>Record-class mappings</h3><div class="panel scroll"><table><thead><tr><th>Source</th><th>Record class</th><th>Native form</th><th>Code system</th><th>Lifecycle</th><th></th></tr></thead><tbody>${exp}</tbody></table></div>${maps}`;
+},
+async identity(){
+  const q = await api("/api/wb/identity");
+  return `<h2>Identity stewardship</h2><p class="sub">Links between the governed person identifier and local records. Links below the direct-care threshold are not used for direct care. A steward can confirm a link after verification, or reject it, through a change request. The decision is versioned and audited like any other change.</p>
+  <div class="panel scroll"><table><thead><tr><th>Person</th><th>Source</th><th>Local id</th><th>Method</th><th>Confidence</th><th>State</th><th></th></tr></thead><tbody>
+  ${q.map(l=>{ const c = {title:`Confirm ${l.name}'s ${l.source} match`, ops:[{op:"identity_decision",person:l.person_id,source:l.source,decision:"confirm",note:""}]};
+    const r = {title:`Reject ${l.name}'s ${l.source} match`, ops:[{op:"identity_decision",person:l.person_id,source:l.source,decision:"reject",note:""}]};
+    return `<tr><td><strong>${esc(l.name)}</strong> <span class="muted mono">${esc(l.person_id)}</span></td><td>${esc(l.source)}${l.catalogued?"":` <span class="muted">(not catalogued)</span>`}</td><td class="mono">${esc(l.local_id)}</td><td>${esc(l.method)}</td><td>${esc(l.confidence)}${l.confidence<l.threshold?` <span class="muted">(&lt; ${l.threshold})</span>`:""}</td><td>${pill(l.state)}</td>
+    <td class="row">${l.pending_change?`<a href="#" data-cr="${l.pending_change}">Pending #${l.pending_change}</a>`:(["below threshold","probabilistic"].includes(l.state)?`<button class="btn ghost sm" data-propose='${esc(JSON.stringify(c))}'>Confirm…</button><button class="btn ghost sm" data-propose='${esc(JSON.stringify(r))}'>Reject…</button>`:"")}</td></tr>`;}).join("")}
+  </tbody></table></div>`;
+},
+async versions(){
+  const vs = await api("/api/wb/versions");
+  const opts = sel => vs.map(v=>`<option value="${v.version}" ${v.version===sel?"selected":""}>v${v.version}</option>`).join("");
+  return `<h2>Versions</h2><p class="sub">Every approved change creates an immutable catalogue version. Versions are never edited or deleted. Restoring an old one is itself a change request, which creates a new version.</p>
+  <div class="panel scroll"><table><thead><tr><th>Version</th><th>When</th><th>Change</th><th>Author</th><th>Approved by</th><th></th></tr></thead><tbody>
+  ${vs.map(v=>`<tr><td><strong>v${v.version}</strong></td><td class="muted">${when(v.created_at)}</td><td>${esc(v.summary)}${v.change_id?` <a href="#" data-cr="${v.change_id}">#${v.change_id}</a>`:""}</td><td>${esc(v.author)}</td><td>${esc(v.approvers.join(", "))}</td>
+  <td>${v.version!==vs[0].version?`<button class="btn ghost sm" data-propose='${esc(JSON.stringify({title:`Restore catalogue content from v${v.version}`, ops:[{op:"restore_version",version:v.version}]}))}'>Propose restore…</button>`:""}</td></tr>`).join("")}</tbody></table></div>
+  <h3>Compare two versions</h3><div class="row"><select class="f" id="va" style="width:auto">${opts(vs.at(-1).version)}</select> → <select class="f" id="vb" style="width:auto">${opts(vs[0].version)}</select> <button class="btn" id="vdiff">Compare</button></div><div id="vout" style="margin-top:10px"></div>`;
+},
+async replay(){
+  const rs = await api("/api/wb/requests");
+  const vs = await api("/api/wb/versions");
+  return `<h2>Replay</h2><p class="sub">Every record request is logged with its parameters and the catalogue version that governed it. No clinical values are logged. Replay re-assembles the record at the original point in time under that version and under another one, and shows what a clinician would have seen differently.</p>
+  <div class="row" style="margin-bottom:10px">Compare with <select class="f" id="rv" style="width:auto">${vs.map((v,i)=>`<option value="${v.version}">v${v.version}${i===0?" (current)":""}</option>`).join("")}</select></div>
+  ${rs.length?`<div class="panel scroll"><table><thead><tr><th>When</th><th>Subject</th><th>Version</th><th>Result</th><th></th></tr></thead><tbody>${rs.map(r=>`<tr><td class="muted">${when(r.at)}</td><td>${esc(r.subject)}</td><td>v${r.version}</td><td>${pill(r.overall==="complete"?"pass":"warn", r.overall)}</td><td><button class="btn ghost sm" data-replay="${esc(r.request_id)}">Replay</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">No record requests logged yet. Open the record view and assemble a record first.</div>`}
+  <div id="rout"></div>`;
+}
+};
+
+PANES.view = async function(){
+  const st = await api("/api/view/status");
+  const evs = await api("/api/demo/events");
+  const qs = await api("/api/view/population");
+  if(!st.registered) return `<h2>Materialised view</h2><p class="sub">No materialised view is registered. Under P4 a view is a source like any other: it must be described, tested and approved before anything is built or served. Import the <strong>summary-view</strong> onboarding pack as a change request, run its conformance and impact analysis, and sign it off as the clinical safety officer.</p>
+    <p><button class="btn" data-cr="${(OV.drafts.find(d=>d.title.includes("summary-view"))||{}).id||""}">Open the summary-view change request</button></p>`;
+  const v = st.view, p = v.materialisation || {};
+  const b = st.builds[0];
+  return `<h2>Materialised view: ${esc(v.label)}</h2><p class="sub">A projection of the federated record, built through the broker so it keeps reconciliation flags, provenance and the catalogue version. It is registered as a derived source and is never authoritative. It trades freshness for speed, resilience and population queries, and says so on every entry.</p>
+  <div class="cards">
+    <div class="card"><h3>Governance</h3><div class="kv"><div class="k">Lifecycle</div><div>${pill(v.lifecycle)}</div><div class="k">Sponsor</div><div>${esc(p.sponsor)}</div><div class="k">Use case</div><div>${esc(p.use_case)}</div><div class="k">Triggers</div><div>${esc((p.triggers||[]).join(", "))}</div><div class="k">Refresh</div><div>${esc(p.refresh)}</div><div class="k">Max age</div><div>${esc(p.max_age_hours)} h</div><div class="k">Review by</div><div>${esc(p.review_date)}</div><div class="k">Authority</div><div>${esc(v.authority)}</div></div></div>
+    <div class="card"><h3>Last build</h3>${b?`<div class="big">${when(b.finished_at||b.started_at)}</div><div class="muted">under ${esc(b.catalogue_version)} · ${b.subjects??"…"} people · trigger: ${esc(b.trigger)}</div>${(b.checks||[]).map(c=>`<div class="ev">${pill(c.status)} <span class="mono">${esc(c.id)}</span> ${esc(c.name)}<div class="muted">${esc(c.detail)}</div></div>`).join("")}`:`<div class="empty">Not built yet.</div>`}
+      <div class="row" style="margin-top:10px"><button class="btn" id="vbuild" ${st.live?"":"disabled"}>Build now</button><button class="btn ghost" id="vage" ${b?"":"disabled"}>Simulate 30 hours passing</button></div>
+      <p class="muted" style="font-size:12px">A build waits up to ${esc(p.build_deadline_seconds||8)} s per source, far longer than an interactive request. That is why the view holds the slow imaging report that a live request usually misses.</p></div>
+  </div>
+  <h3>Entries</h3>${st.entries.length?`<div class="panel scroll"><table><thead><tr><th>Person</th><th>Built</th><th>Under</th><th>Freshness</th><th></th></tr></thead><tbody>${st.entries.map(e=>`<tr><td class="mono">${esc(e.subject)}</td><td>${when(e.built_at)} <span class="muted">(${e.freshness.age_hours} h)</span></td><td>${esc(e.catalogue_version)}</td>
+    <td>${e.freshness.rebuild_required?pill("warn","rebuild required")+`<div class="muted" style="font-size:12px">${esc(e.freshness.reasons.join("; "))}</div>`:pill("pass","within policy")}</td><td><button class="btn ghost sm" data-cmp="${esc(e.subject)}">Compare with live</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">No entries yet: build the view.</div>`}
+  <div id="cmpout"></div>
+  <h3>Simulate new clinical activity at the sources</h3><p class="muted" style="font-size:13px">These write to the source systems only. The view does not know until it is rebuilt. Use <em>Compare with live</em> to see what it is missing.</p>
+  <div class="panel" style="padding:4px 14px">${evs.map(e=>`<div class="ev row" style="justify-content:space-between"><div><strong>${esc(e.label)}</strong><div class="muted">${esc(e.detail)}</div></div>${e.applied_at?pill("pass","applied "+when(e.applied_at)):`<button class="btn ghost sm" data-ev="${esc(e.id)}">Apply</button>`}</div>`).join("")}</div>
+  <p><button class="btn ghost sm" id="evreset">Reset simulated activity</button></p>
+  <h3>Population query</h3><div class="row"><select class="f" id="popq" style="width:auto">${qs.map(q=>`<option value="${esc(q.id)}">${esc(q.label)}</option>`).join("")}</select><button class="btn" id="poprun" ${st.entries.length?"":"disabled"}>Run</button></div><div id="popout" style="margin-top:10px"></div>`;
+};
+function impactBadges(t){ return `<div class="tot" style="margin:4px 0 0">${t.hides?`<span class="s-hides">hides ${t.hides}</span>`:""}${t.raises?`<span class="s-raises">raises ${t.raises}</span>`:""}<span class="s-visible">other ${t.visible}</span></div>`; }
+function changeTable(people){
+  const rows = people.flatMap(p=>p.changes.map(c=>({...c, name:p.name})));
+  if(!rows.length) return `<div class="empty">No difference in any record.</div>`;
+  const order = {hides:0, "missing-from-view":0, raises:1, "outdated-in-view":1, visible:2, other:2};
+  rows.sort((a,b)=>order[a.safety]-order[b.safety]);
+  return `<div class="panel scroll"><table><thead><tr><th>Safety</th><th>Person</th><th>Change</th><th>Where</th><th>Detail</th></tr></thead><tbody>${rows.map(c=>`<tr><td><span class="pill s-${c.safety}">${({visible:"other","missing-from-view":"missing from view","outdated-in-view":"outdated in view"})[c.safety]||c.safety}</span></td><td>${esc(c.name)}</td><td>${esc(c.kind)}</td><td>${esc(c.section)} · <strong>${esc(c.item)}</strong></td><td>${esc(c.detail)}</td></tr>`).join("")}</tbody></table></div>`;
+}
+function catTable(list){ return list.length ? `<div class="panel scroll"><table><thead><tr><th>Area</th><th>Item</th><th>Change</th></tr></thead><tbody>${list.map(c=>`<tr><td>${esc(c.area)}</td><td class="mono">${esc(c.item)}</td><td>${esc(c.change)}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">No catalogue differences.</div>`; }
+
+async function detail(id){
+  const c = await api(`/api/wb/changes/${id}`);
+  const me = PERSONAS.find(p=>p.id===persona());
+  const have = new Set(c.approvals.map(a=>a.role));
+  const draft = c.status==="draft";
+  const gates = [];
+  if(draft){
+    gates.push(c.impact && !c.stale ? ["ok","Impact analysis run against the current catalogue (v"+c.base_version+")"] : ["no", c.stale ? "The catalogue has moved on since the impact analysis: re-run it" : "Impact analysis not yet run"]);
+    c.newly_live.forEach(s=>{ const r = c.conformance[s]; gates.push(r && r.overall!=="fail" && r.base_version===OV.version ? ["ok",`Conformance for ${s}: ${r.overall}`] : ["no", r ? (r.overall==="fail"?`Conformance for ${s} failed`:`Conformance for ${s} is out of date: re-run it`) : `Source ${s} would become live: conformance run required`]); });
+    c.required_roles.forEach(r=>gates.push(have.has(r) ? ["ok",`Signed off by ${ROLE[r]}`] : ["no",`Awaiting ${ROLE[r]}`]));
+  }
+  const canDecide = draft && c.required_roles.includes(me.role) && !have.has(me.role) && me.id!==c.author;
+  const why = !draft ? "" : me.id===c.author ? "You authored this change; the four-eyes rule means someone else must approve it." : !c.required_roles.includes(me.role) ? `Approval needs ${c.required_roles.map(r=>ROLE[r]).join(" + ")}. Switch persona to act as one.` : have.has(me.role) ? "Already signed off for your role." : "";
+  return `<div class="panel" style="padding:16px">
+    <div class="row" style="justify-content:space-between"><h2>#${c.id} ${esc(c.title)}</h2>${pill(c.status)}</div>
+    <div class="muted" style="font-size:13px">Authored by ${esc(c.author_name)} · ${when(c.created_at)}${c.applied_version?` · applied as <strong>v${c.applied_version}</strong>`:""}</div>
+    ${c.rationale?`<p>${esc(c.rationale)}</p>`:""}
+    <h3>Operations</h3><ul class="ops">${c.operations.map(o=>`<li>${esc(o)}</li>`).join("")}</ul>
+    <details><summary class="muted" style="cursor:pointer;font-size:12px">Show operations as JSON</summary><pre class="mono" style="white-space:pre-wrap;background:var(--soft);padding:8px;border-radius:6px">${esc(JSON.stringify(c.ops,null,2))}</pre></details>
+    ${draft?`<h3>Gates</h3>${gates.map(([k,t])=>`<div class="gate ${k}">${k==="ok"?"✓":"•"} ${esc(t)}</div>`).join("")}`:""}
+    ${c.newly_live.length||Object.keys(c.conformance).length?`<h3>Conformance</h3>${[...new Set([...c.newly_live, ...Object.keys(c.conformance)])].map(s=>`<div class="row" style="margin:6px 0"><strong>${esc(s)}</strong> ${c.conformance[s]?pill(c.conformance[s].overall):""} ${draft?`<button class="btn ghost sm" data-conf="${esc(s)}">Run conformance tests</button>`:""}</div>${c.conformance[s]?confTable(c.conformance[s]):""}`).join("")}`:""}
+    <h3>Impact analysis</h3>${draft?`<button class="btn ${c.impact&&!c.stale?"ghost":""}" id="runimpact">${c.impact?"Re-run impact analysis":"Run impact analysis"}</button>`:""}
+    ${c.impact?`<p class="muted" style="font-size:12.5px">${esc(c.impact.note)} Run ${when(c.impact.run_at)} against v${c.impact.base_version}.</p>${impactBadges(c.impact.totals)}
+      ${c.impact.totals.hides?`<div class="gate no" style="background:var(--badbg);color:var(--bad)">This change would hide ${c.impact.totals.hides} thing${c.impact.totals.hides>1?"s":""} a clinician currently sees: a discrepancy, alert or source. Review before signing off.</div>`:""}
+      ${c.impact.materialised?`<div class="gate no">${esc(c.impact.materialised)}</div>`:""}<h3>Catalogue changes</h3>${catTable(c.impact.catalogue_changes)}<h3>Record changes, across every person in the index</h3>${changeTable(c.impact.people)}`:`<div class="empty">Not yet run.</div>`}
+    ${c.approvals.length?`<h3>Sign-offs</h3>${c.approvals.map(a=>`<div class="ev"><strong>${esc(a.name)}</strong> (${esc(ROLE[a.role])}) · ${when(a.at)}<div>${esc(a.signoff)}</div></div>`).join("")}`:""}
+    ${c.decision_note?`<h3>Decision note</h3><p>${esc(c.decision_note)}</p>`:""}
+    ${draft?`<h3>Decision as ${esc(me.name)}</h3>${why?`<p class="muted">${esc(why)}</p>`:""}
+      <textarea id="signoff" placeholder="Written sign-off or reason (required)"></textarea>
+      <div class="row" style="margin-top:8px"><button class="btn" id="approve" ${canDecide?"":"disabled"}>Approve and sign off</button><button class="btn danger" id="reject" ${(canDecide||me.id===c.author)?"":"disabled"}>${me.id===c.author?"Withdraw":"Reject"}</button></div>`:""}
+    <h3>History</h3>${c.events.map(ev=>`<div class="ev"><span class="muted">${when(ev.at)}</span> · <strong>${esc(ev.actor)}</strong> ${esc(ev.action)}${ev.detail?` · <span class="muted">${esc(ev.detail)}</span>`:""}</div>`).join("")}
+  </div>`;
+}
+function confTable(r){ return `<div class="panel scroll"><table><thead><tr><th>Check</th><th>Result</th><th>Detail</th></tr></thead><tbody>${r.checks.map(ch=>`<tr><td><span class="mono">${esc(ch.id)}</span> ${esc(ch.name)}</td><td>${pill(ch.status)}</td><td>${esc(ch.detail)}</td></tr>`).join("")}</tbody></table></div>`; }
+
+const TEMPLATES = {
+  "Approve or deprecate a record-class mapping": {op:"set_exposure_mapping", source:"hospital-b", record_class:"vital-sign", lifecycle:"approved"},
+  "Change a concept-map element": {op:"set_concept_map_element", map:"cm:icd10-snomed", code:"N18.3", target:"433144002", grade:"exact", lifecycle:"approved"},
+  "Add a concept-map element": {op:"set_concept_map_element", map:"cm:readv2-snomed", code:"1371.", target:"266919005", grade:"exact", lifecycle:"approved", display:"Never smoked tobacco"},
+  "Change a source lifecycle": {op:"set_source_lifecycle", source:"imaging", lifecycle:"suspended"},
+  "Identity decision": {op:"identity_decision", person:"NID-DEMO-1002", source:"pharmacy", decision:"confirm", note:""},
+  "Restore an earlier version": {op:"restore_version", version:1},
+};
+function newForm(){
+  const p = PREFILL || {title:"", ops:[TEMPLATES["Approve or deprecate a record-class mapping"]]}; PREFILL = null;
+  return `<div class="panel" style="padding:16px"><h2>New change request</h2><p class="muted">Authored as ${esc(PERSONAS.find(x=>x.id===persona()).name)}. Operations are validated against the current catalogue when you create the request.</p>
+  <label>Title<input type="text" id="ntitle" value="${esc(p.title)}"></label>
+  <label style="display:block;margin-top:8px">Rationale<textarea id="nrat" placeholder="Why is this change needed? What evidence supports it?"></textarea></label>
+  <div class="row" style="margin-top:8px"><span class="muted">Add an operation from a template:</span><select class="f" id="ntpl" style="width:auto"><option value="">Choose…</option>${Object.keys(TEMPLATES).map(k=>`<option>${esc(k)}</option>`).join("")}</select></div>
+  <label style="display:block;margin-top:8px">Operations (JSON)<textarea class="json" id="nops">${esc(JSON.stringify(p.ops,null,2))}</textarea></label>
+  <div class="row" style="margin-top:10px"><button class="btn" id="ncreate">Create change request</button><button class="btn ghost" id="ncancel">Cancel</button></div></div>`;
+}
+
+const WIRE = {
+changes(){
+  document.querySelectorAll("[data-sel]").forEach(el=>el.onclick=()=>{SEL=+el.dataset.sel; render();});
+  $("#newcr").onclick = ()=>{SEL="new"; render();};
+  $("#pack").onclick = async e => { const packs = await api("/api/wb/onboarding"); const name = packs[0]; if(!name) return toast("No onboarding packs found");
+    const c = await act(e.target, ()=>api(`/api/wb/onboarding/${name}`,{method:"POST"}), `Imported pack ${name} as a draft change request`); if(c){SEL=c.id; render();} };
+  if(SEL==="new"){
+    $("#ntpl").onchange = ()=>{ const t = TEMPLATES[$("#ntpl").value]; if(!t) return; let ops=[]; try{ops=JSON.parse($("#nops").value)}catch(e){}; ops.push(t); $("#nops").value = JSON.stringify(ops,null,2); $("#ntpl").value=""; };
+    $("#ncancel").onclick = ()=>{SEL=null; render();};
+    $("#ncreate").onclick = async e => { let ops; try{ ops = JSON.parse($("#nops").value); }catch(err){ return toast("Operations are not valid JSON"); }
+      const c = await act(e.target, ()=>api("/api/wb/changes",{method:"POST",body:JSON.stringify({title:$("#ntitle").value, rationale:$("#nrat").value, ops})}), "Change request created");
+      if(c){SEL=c.id; render();} };
+    return;
+  }
+  const id = SEL;
+  $("#runimpact") && ($("#runimpact").onclick = async e => { const r = await act(e.target, ()=>api(`/api/wb/changes/${id}/impact`,{method:"POST"}), "Impact analysis complete"); if(r) render(); });
+  document.querySelectorAll("[data-conf]").forEach(b=>b.onclick = async e => { const r = await act(e.target, ()=>api(`/api/wb/changes/${id}/conformance/${b.dataset.conf}`,{method:"POST"}), "Conformance run complete"); if(r) render(); });
+  $("#approve") && ($("#approve").onclick = async e => { const c = await act(e.target, ()=>api(`/api/wb/changes/${id}/approve`,{method:"POST",body:JSON.stringify({text:$("#signoff").value})}));
+    if(c){ toast(c.status==="applied"?`Applied as catalogue v${c.applied_version}`:"Signed off; awaiting other roles", true); render(); } });
+  $("#reject") && ($("#reject").onclick = async e => { const c = await act(e.target, ()=>api(`/api/wb/changes/${id}/reject`,{method:"POST",body:JSON.stringify({text:$("#signoff").value||"No reason given"})}), "Decision recorded"); if(c) render(); });
+},
+sources(){
+  document.querySelectorAll("[data-retest]").forEach(b=>b.onclick = async e => { const r = await act(e.target, ()=>api(`/api/wb/sources/${b.dataset.retest}/conformance`,{method:"POST"}));
+    if(r) $(`#rt-${CSS.escape(b.dataset.retest)}`).innerHTML = `<h3>Conformance ${pill(r.overall)}</h3>${confTable(r)}`; });
+},
+versions(){
+  $("#vdiff").onclick = async e => { const d = await act(e.target, ()=>api(`/api/wb/versions/${$("#va").value}/diff/${$("#vb").value}`)); if(d) $("#vout").innerHTML = catTable(d); };
+},
+replay(){
+  document.querySelectorAll("[data-replay]").forEach(b=>b.onclick = async e => {
+    const r = await act(e.target, ()=>api(`/api/wb/replay/${b.dataset.replay}?version=${$("#rv").value}`,{method:"POST"}));
+    if(r) $("#rout").innerHTML = `<h3>Replay: ${esc(r.subject)} as at ${when(r.as_at)} · v${r.original_version} → v${r.compared_version}</h3><p class="muted" style="font-size:12.5px">${esc(r.note)}</p>${impactBadges(r.record_changes.counts)}<h3>Catalogue changes</h3>${catTable(r.catalogue_changes)}<h3>What the clinician would see differently</h3>${changeTable([r.record_changes])}`;
+  });
+}
+};
+WIRE.view = function(){
+  $("#vbuild") && ($("#vbuild").onclick = async e => { const r = await act(e.target, ()=>api("/api/view/build?trigger=manual",{method:"POST"})); if(r){ toast(`Built for ${r.subjects} people under ${r.catalogue_version}`, true); render(); } });
+  $("#vage") && ($("#vage").onclick = async e => { const r = await act(e.target, ()=>api("/api/demo/view-age?hours=30",{method:"POST"})); if(r) render(); });
+  $("#evreset") && ($("#evreset").onclick = async e => { const r = await act(e.target, ()=>api("/api/demo/events-reset",{method:"POST"}), "Simulated activity reset"); if(r) render(); });
+  document.querySelectorAll("[data-ev]").forEach(b=>b.onclick = async e => { const r = await act(e.target, ()=>api(`/api/demo/events/${b.dataset.ev}`,{method:"POST"}), "Event recorded at the source"); if(r) render(); });
+  document.querySelectorAll("[data-cmp]").forEach(b=>b.onclick = async e => { const r = await act(e.target, ()=>api(`/api/view/compare/${b.dataset.cmp}`));
+    if(r) $("#cmpout").innerHTML = `<h3>${esc(r.name)}: view (built ${r.freshness.age_hours} h ago) against live now</h3>`
+      + `<div class="tot">${r.diff.counts["missing-from-view"]?`<span class="s-missing-from-view">missing from view ${r.diff.counts["missing-from-view"]}</span>`:""}${r.diff.counts["outdated-in-view"]?`<span class="s-outdated-in-view">outdated in view ${r.diff.counts["outdated-in-view"]}</span>`:""}<span class="s-other">other ${r.diff.counts.other}</span></div>`
+      + (r.diff.changes.length ? changeTable([r.diff]).replace(/>other</g,">other<") : `<div class="empty">The view matches the live record.</div>`); });
+  $("#poprun") && ($("#poprun").onclick = async e => { const r = await act(e.target, ()=>api(`/api/view/population/${$("#popq").value}`));
+    if(r) $("#popout").innerHTML = `<p class="muted" style="font-size:12.5px">${r.rows.length} row(s) in ${r.elapsed_ms} ms, as of ${when(r.as_of_oldest_build)}. ${esc(r.note)}</p>`
+      + (r.rows.length?`<div class="panel scroll"><table><thead><tr><th>Person</th><th>Section</th><th>Entry</th><th>State</th><th>Flags</th></tr></thead><tbody>${r.rows.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.section)}</td><td><strong>${esc(x.entry)}</strong></td><td>${esc(x.reconciliation)}</td><td>${esc(x.flags.join(", "))}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">No matches.</div>`); });
+};
+init();
+</script>
+</body>
+</html>

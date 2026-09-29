@@ -1,0 +1,26 @@
+{
+  "description": "Identity and location index. Membership and local identifiers only, plus demographics from the demographics authority; no clinical content. All identifiers are synthetic.",
+  "persons": [
+    {
+      "person_id": "NID-DEMO-1001",
+      "demographics": {"name": "Jane Smith", "birth_date": "1958-03-14", "sex": "female", "source": "Demographics authority (synthetic)"},
+      "links": [
+        {"source": "gp", "local_id": "GP-77120", "method": "deterministic", "confidence": 1.0},
+        {"source": "hospital-a", "local_id": "ehr-5c1e22", "method": "deterministic", "confidence": 1.0},
+        {"source": "hospital-b", "local_id": "PAT-B-80211", "method": "deterministic", "confidence": 1.0},
+        {"source": "pharmacy", "local_id": "RX-33019", "method": "probabilistic", "confidence": 0.95},
+        {"source": "imaging", "local_id": "PACS-10442", "method": "deterministic", "confidence": 1.0},
+        {"source": "gp-legacy", "local_id": "GPL-4471", "method": "deterministic", "confidence": 1.0}
+      ]
+    },
+    {
+      "person_id": "NID-DEMO-1002",
+      "demographics": {"name": "Sam Patel", "birth_date": "1981-07-02", "sex": "male", "source": "Demographics authority (synthetic)"},
+      "links": [
+        {"source": "gp", "local_id": "GP-80455", "method": "deterministic", "confidence": 1.0},
+        {"source": "hospital-b", "local_id": "PAT-B-91002", "method": "deterministic", "confidence": 1.0},
+        {"source": "pharmacy", "local_id": "RX-45120", "method": "probabilistic", "confidence": 0.72}
+      ]
+    }
+  ]
+}

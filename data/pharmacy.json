@@ -1,0 +1,15 @@
+{
+  "_note": "Community pharmacy dispensing and vaccination event feed. All content is synthetic.",
+  "events": [
+    {"event_id": "EV-1001", "patient": "RX-33019", "type": "dispense", "at": "@-50T11", "product": {"system": "urn:demo:dmd", "code": "VMP-MET500", "display": "Metformin 500mg tablets"}, "quantity": 112, "prescriber": "Riverside Medical Practice"},
+    {"event_id": "EV-1002", "patient": "RX-33019", "type": "dispense", "at": "@-48T11", "product": {"system": "urn:demo:dmd", "code": "VMP-ATO20", "display": "Atorvastatin 20mg tablets"}, "quantity": 28, "prescriber": "Riverside Medical Practice"},
+    {"event_id": "EV-1003", "patient": "RX-33019", "type": "dispense", "at": "@-40T15", "product": {"system": "urn:demo:dmd", "code": "VMP-API5", "display": "Apixaban 5mg tablets"}, "quantity": 56, "prescriber": "Riverside Medical Practice"},
+    {"event_id": "EV-1004", "patient": "RX-33019", "type": "dispense", "at": "@-20T10", "product": {"system": "urn:demo:dmd", "code": "VMP-MET500", "display": "Metformin 500mg tablets"}, "quantity": 112, "prescriber": "Riverside Medical Practice"},
+    {"event_id": "EV-1005", "patient": "RX-33019", "type": "dispense", "at": "@-18T10", "product": {"system": "urn:demo:dmd", "code": "VMP-ATO20", "display": "Atorvastatin 20mg tablets"}, "quantity": 28, "prescriber": "Riverside Medical Practice"},
+    {"event_id": "EV-1006", "patient": "RX-33019", "type": "dispense", "at": "@-10T16", "product": {"system": "urn:demo:dmd", "code": "VMP-API5", "display": "Apixaban 5mg tablets"}, "quantity": 56, "prescriber": "Riverside Medical Practice"},
+    {"event_id": "EV-1007", "patient": "RX-33019", "type": "dispense", "at": "@-160T12", "product": {"system": "urn:demo:dmd", "code": "VMP-RAM5", "display": "Ramipril 5mg capsules"}, "quantity": 28, "prescriber": "Riverside Medical Practice"},
+    {"event_id": "EV-1008", "patient": "RX-33019", "type": "vaccination", "at": "@-170T14", "product": {"system": "http://snomed.info/sct", "code": "86198006", "display": "Influenza vaccination"}, "batch": "FLU-DEMO-2025A", "site": "Left deltoid"},
+
+    {"event_id": "EV-2001", "patient": "RX-45120", "type": "dispense", "at": "@-30T12", "product": {"system": "urn:demo:dmd", "code": "VMP-SAL100", "display": "Salbutamol 100micrograms/dose inhaler"}, "quantity": 1, "prescriber": "Riverside Medical Practice"}
+  ]
+}

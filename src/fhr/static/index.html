@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Federated Patient Record</title>
+<style>
+:root{
+  --bg:#f4f5f3;--panel:#ffffff;--ink:#1c1e1d;--muted:#666a67;--faint:#8b8f8c;--line:#e1e3df;--soft:#f7f8f6;
+  --band:#22313a;--bandink:#f2f5f6;--bandmuted:#aebdc5;
+  --accent:#1f5f8b;--onaccent:#ffffff;
+  --ok:#2b7a4b;--okbg:#e4f2e9;--warn:#8a5a00;--warnbg:#fbefd6;--bad:#a1332b;--badbg:#f8e1de;--info:#4b4f9a;--infobg:#e8e9f7;--mute:#5e625f;--mutebg:#eceeeb;
+  --s-gp:#1f6f8b;--s-hospital-a:#7a4fb0;--s-hospital-b:#c0692a;--s-pharmacy:#2e7d4f;--s-imaging:#8a7a2a;--s-gp-legacy:#9a4a6a;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#141615;--panel:#1d201e;--ink:#eaece9;--muted:#a4a9a5;--faint:#7d827e;--line:#313532;--soft:#232624;
+  --band:#0f1a20;--bandink:#e9eff2;--bandmuted:#8fa3ad;
+  --accent:#7fb3d9;--onaccent:#0f2433;
+  --ok:#7fd19c;--okbg:#1b3124;--warn:#f0c46a;--warnbg:#3a2e14;--bad:#f09a90;--badbg:#3d1f1c;--info:#b1b5f0;--infobg:#25274a;--mute:#b6bab7;--mutebg:#2a2d2b;
+  --s-gp:#6fb7d3;--s-hospital-a:#c3a0ec;--s-hospital-b:#f0a36a;--s-pharmacy:#7fd19c;--s-imaging:#d8c56a;--s-gp-legacy:#e59ab8;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,select,input{font:inherit;color:inherit}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 20px;background:var(--panel);border-bottom:1px solid var(--line)}
+.top h1{font-size:15px;margin:0;font-weight:650;letter-spacing:.01em}
+.synth{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--warn);background:var(--warnbg);padding:2px 8px;border-radius:4px}
+.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-left:auto}
+.controls label{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.controls select,.controls input{padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--soft)}
+.controls input[type=number]{width:64px}
+.btn{padding:6px 14px;border:0;border-radius:6px;background:var(--accent);color:var(--onaccent);font-weight:600;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+.btn:disabled{opacity:.6;cursor:wait}
+.outages{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 20px;background:var(--soft);border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}
+.otog{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:2px 10px;cursor:pointer;font-size:12px}
+.otog.off{background:var(--badbg);color:var(--bad);border-color:transparent;text-decoration:line-through}
+
+.banner{background:var(--band);color:var(--bandink);padding:14px 20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.banner .name{font-size:20px;font-weight:650}
+.banner .demo{color:var(--bandmuted);font-size:13px;display:flex;gap:14px;flex-wrap:wrap}
+.banner .demo b{color:var(--bandink);font-weight:600}
+.banner .right{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.bchip{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:650}
+.bchip.allergy{background:#b3372d;color:#fff}
+.bchip.conflict{background:#e0a31a;color:#1c1400}
+.bchip.nka{background:#39505c;color:#e9eff2}
+.bchip.status{background:#39505c;color:#e9eff2;font-weight:500}
+
+.strip{display:flex;gap:8px;flex-wrap:wrap;padding:10px 20px;border-bottom:1px solid var(--line);background:var(--panel);align-items:center}
+.strip .lbl{font-size:12px;color:var(--muted);margin-right:4px}
+.src{display:inline-flex;gap:6px;align-items:center;font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--soft);cursor:default}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+
+.layout{display:grid;grid-template-columns:220px 1fr;gap:0;min-height:calc(100vh - 200px)}
+@media (max-width:860px){.layout{grid-template-columns:1fr}.nav{display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:6px}.nav a{white-space:nowrap}}
+.layout>*{min-width:0}
+.nav{border-right:1px solid var(--line);padding:12px 8px;background:var(--panel)}
+.nav a{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;color:var(--ink);text-decoration:none;cursor:pointer}
+.nav a:hover{background:var(--soft)}
+.nav a.on{background:var(--infobg);color:var(--info);font-weight:600}
+.nav .cnt{font-size:11px;color:var(--faint)}
+.nav .rv{font-size:11px;background:var(--warnbg);color:var(--warn);border-radius:999px;padding:0 7px;font-weight:700}
+.nav .rv.c{background:var(--badbg);color:var(--bad)}
+.main{padding:18px 22px 40px}
+h2{font-size:17px;margin:0 0 4px;font-weight:650}
+h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:18px 0 8px;font-weight:650}
+.sub{color:var(--muted);font-size:13px;margin:0 0 12px}
+.cov{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 14px}
+.cov span{font-size:12px;padding:2px 8px;border-radius:4px}
+.c-contributed{background:var(--okbg);color:var(--ok)}
+.c-no_data{background:var(--mutebg);color:var(--mute)}
+.c-not_asked{background:var(--mutebg);color:var(--faint)}
+.c-unavailable,.c-failed,.c-not_permitted{background:var(--badbg);color:var(--bad)}
+.c-identity_uncertain,.c-semantics_unresolved{background:var(--warnbg);color:var(--warn)}
+.c-stale{background:#efe0f7;color:#6b3a8a}
+@media (prefers-color-scheme: dark){.c-stale{background:#34233f;color:#d7b3ee}}
+.bchip.mode{background:#6b3a8a;color:#fff}
+.mtab td,.mtab th{text-align:left}
+.mtab td.win{font-weight:650}
+
+.alerts{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.alert{padding:8px 12px;border-radius:6px;font-size:13px;border-left:4px solid;cursor:pointer}
+.alert.critical{background:var(--badbg);border-color:var(--bad);color:var(--bad);font-weight:600}
+.alert.warning{background:var(--warnbg);border-color:var(--warn);color:var(--warn)}
+.alert.info{background:var(--infobg);border-color:var(--info);color:var(--info)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.card h3{margin-top:0;display:flex;justify-content:space-between;align-items:center}
+.card h3 a{font-size:11px;text-transform:none;letter-spacing:0;color:var(--accent);cursor:pointer;font-weight:500}
+.row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.row:last-child{border-bottom:0}
+.row .l{min-width:0}
+.row .t{font-weight:550}
+.row .m{font-size:12px;color:var(--muted)}
+.empty{color:var(--muted);font-style:italic;padding:6px 0}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:650;background:var(--soft)}
+tr:last-child td{border-bottom:0}
+td.note{background:var(--soft);font-size:12.5px;color:var(--ink);padding:6px 10px 10px 22px}
+td.note ul{margin:0;padding-left:16px}
+.pill{display:inline-block;font-size:11px;font-weight:650;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.r-needs-review{background:var(--warnbg);color:var(--warn)}
+.r-conflict{background:var(--badbg);color:var(--bad)}
+.r-agreed{background:var(--okbg);color:var(--ok)}
+.r-single-source{background:var(--mutebg);color:var(--mute)}
+.r-information{background:var(--mutebg);color:var(--mute)}
+.flag{display:inline-block;font-size:11px;padding:0 7px;border-radius:4px;background:var(--infobg);color:var(--info);margin:1px 2px 1px 0;white-space:nowrap}
+.flag.w{background:var(--warnbg);color:var(--warn)}
+.flag.b{background:var(--badbg);color:var(--bad)}
+.schip{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:1px 8px 1px 6px;border:1px solid var(--line);border-radius:999px;background:var(--panel);cursor:pointer;margin:1px 3px 1px 0;white-space:nowrap}
+.schip:hover{border-color:var(--accent)}
+.schip code{font:11px var(--mono);color:var(--muted)}
+.cell{font-size:13px;cursor:pointer;border-radius:6px;padding:4px 6px;margin:-4px -6px}
+.cell:hover{background:var(--soft)}
+.cell .d{font-weight:550}
+.cell .m{font-size:11.5px;color:var(--muted)}
+.cell.stopped .d{text-decoration:line-through;color:var(--muted)}
+.cell.diff{box-shadow:inset 3px 0 0 var(--warn);padding-left:10px}
+.cell.warn .d{color:var(--warn)}
+.na{color:var(--faint);font-size:12px}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.muted{color:var(--muted)}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent);font-size:13px}
+pre{font:12px/1.45 var(--mono);background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;max-height:420px;white-space:pre-wrap;word-break:break-word;margin:6px 0}
+.doc{white-space:pre-wrap;font-size:13.5px;line-height:1.6;background:var(--soft);border-radius:6px;padding:12px;margin-top:8px}
+.chart{width:100%;height:auto;display:block}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:4px 0 8px}
+.card th,.card td{padding:6px 8px}
+.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px}
+.timeline{border-left:2px solid var(--line);margin-left:6px;padding-left:16px}
+.tl{position:relative;padding:4px 0 14px}
+.tl::before{content:"";position:absolute;left:-22px;top:9px;width:10px;height:10px;border-radius:50%;background:var(--c,var(--accent))}
+dialog{border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);max-width:780px;width:calc(100% - 32px);padding:20px}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px 18px;font-size:13px}
+.grid2 .k{color:var(--muted);font-size:12px}
+.chain{list-style:none;padding:0;margin:6px 0}
+.chain li{padding:6px 10px;border-left:3px solid var(--accent);margin:4px 0;background:var(--soft);font-size:12.5px}
+.loading{padding:60px;text-align:center;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Federated Patient Record</h1><span class="synth">Synthetic data · demonstrator</span>
+  <div class="controls">
+    <label>Patient <select id="subject"></select></label>
+    <label>Purpose <select id="purpose"><option>direct-care</option><option>secondary-use</option><option>research</option></select></label>
+    <label>Deadline (s) <input id="deadline" type="number" min="0.5" max="30" step="0.5" value="3"></label>
+    <label>Serve as <select id="mode"><option value="federated">Federated (live)</option><option value="hybrid">Hybrid (live, view fills gaps)</option><option value="materialised">Materialised view</option></select></label>
+    <label>Catalogue <select id="version"></select></label>
+    <button class="btn" id="go">Assemble record</button>
+    <a class="btn ghost" href="/workbench" style="text-decoration:none">Workbench &rarr;</a>
+  </div>
+</div>
+<div class="outages" id="outages"></div>
+<div id="app"><div class="loading">Assembling the record from each source…</div></div>
+<dialog id="dlg"><div id="dlgBody"></div><form method="dialog" style="margin-top:14px"><button class="btn">Close</button></form></dialog>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const fmtD = s => { if(!s) return "—"; const d = new Date(s); return `${String(d.getUTCDate()).padStart(2,"0")} ${MON[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
+const agoTxt = s => { if(!s || !REC) return ""; const d = Math.round((Date.parse(REC.as_at) - Date.parse(s))/864e5); if(d<=0) return "today"; if(d<60) return d+" d ago"; if(d<730) return Math.round(d/30.44)+" mo ago"; return Math.round(d/365.25)+" y ago"; };
+const FLAG = {"recorded-at-different-detail":["different detail",""],"status-differs":["status differs",""],"not-in-gp-record":["not on GP record","w"],"dose-discrepancy":["dose differs","w"],"stopped-elsewhere":["stopped elsewhere","w"],"not-on-gp-list":["not on GP list","w"],"not-dispensed-recently":["not dispensed recently","w"],"conflicts-with-recorded-allergy":["conflicts with recorded allergy","b"],"possible-duplicate":["possible duplicate",""],"amended":["includes amended value","w"],"derived":["includes converted value",""],"probabilistic-identity":["probabilistic identity",""],"includes-stale":["includes stale data","w"]};
+const RECON = {"needs-review":"Needs review","conflict":"Conflict","agreed":"Sources agree","single-source":"Single source","information":""};
+const COV = {contributed:"✓",no_data:"none",not_asked:"not asked",unavailable:"unavailable",failed:"failed",not_permitted:"refused",identity_uncertain:"identity uncertain",semantics_unresolved:"unmapped",stale:"stale (from view)"};
+const SRC_STATUS = {complete:"Complete",no_matching_data:"No data",partial:"Partial",not_permitted:"Refused",unavailable:"Unavailable",failed:"Failed",semantics_unresolved:"Unmapped",identity_uncertain:"Identity uncertain",not_asked:"Not asked",stale:"Stale (view)"};
+let CAT = null, REC = null, S = {}, PANE = "summary", OFF = new Set();
+const short = id => CAT?.sources.find(s=>s.id===id)?.short || id;
+const scol = id => `var(--s-${id}, var(--faint))`;
+const flags = fs => (fs||[]).filter(f=>FLAG[f] && f!=="probabilistic-identity").map(f=>`<span class="flag ${FLAG[f][1]}">${FLAG[f][0]}</span>`).join("");
+const recon = r => RECON[r] ? `<span class="pill r-${r}">${RECON[r]}</span>` : "";
+const section = id => REC.sections.find(s=>s.id===id);
+const chips = e => e.members.map(id=>S[id]).map(s=>`<span class="schip" data-s="${esc(s.id)}"><i class="dot" style="background:${scol(s.source)}"></i>${esc(short(s.source))}${s.native_code?.code?` <code>${esc(s.native_code.code)}</code>`:""}</span>`).join("");
+
+async function init(){
+  const [pats, cat, off, vers] = await Promise.all([fetch("/api/patients").then(r=>r.json()), fetch("/api/catalogue").then(r=>r.json()), fetch("/api/demo/outages").then(r=>r.json()), fetch("/api/wb/versions").then(r=>r.json())]);
+  CAT = cat; OFF = new Set(off.offline);
+  $("#version").innerHTML = vers.map((v,i)=>`<option value="${i===0?"":v.version}">v${v.version}${i===0?" (current)":""} · ${esc(v.summary.slice(0,40))}</option>`).join("");
+  $("#subject").innerHTML = pats.map(p=>`<option value="${esc(p.person_id)}">${esc(p.name)} (synthetic)</option>`).join("");
+  load();
+}
+function renderOutages(){
+  $("#outages").innerHTML = `<span>Simulate outage:</span>` + CAT.sources.map(s=>`<button class="otog ${OFF.has(s.id)?"off":""}" data-o="${esc(s.id)}" title="Take ${esc(s.label)} offline">${esc(s.short)}</button>`).join("") + `<span style="margin-left:6px">Imaging is slow (~5 s): raise the deadline to let it answer.</span>`;
+  document.querySelectorAll(".otog").forEach(b=>b.onclick=async()=>{
+    OFF.has(b.dataset.o)?OFF.delete(b.dataset.o):OFF.add(b.dataset.o);
+    await fetch("/api/demo/outages",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({offline:[...OFF]})});
+    renderOutages(); load();
+  });
+}
+function lir(){ return {subject:$("#subject").value, purpose:$("#purpose").value, deadline_seconds:+$("#deadline").value||3, mode:$("#mode").value,
+  requester:{id:"clin-0042", role:"general-practitioner", organisation:"Out-of-hours service (synthetic)"}}; }
+async function load(){
+  const b = $("#go"); b.disabled = true; b.textContent = "Assembling…";
+  try{
+    const v = $("#version").value;
+    CAT = await fetch("/api/catalogue"+(v?`?version=${v}`:"")).then(r=>r.json()); CAT.sources = CAT.sources.filter(s=>!s.derived); renderOutages();
+    const r = await fetch("/api/record"+(v?`?version=${v}`:""),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(lir())});
+    const body = await r.json();
+    if(!r.ok){ $("#app").innerHTML = `<div class="loading">Request rejected: ${esc(typeof body.detail==="string"?body.detail:JSON.stringify(body.detail))}</div>`; return; }
+    REC = body; S = Object.fromEntries(REC.statements.map(s=>[s.id,s])); render();
+  } finally { b.disabled = false; b.textContent = "Assemble record"; }
+}
+
+function render(){
+  const d = REC.demographics;
+  const alg = section("allergies");
+  const pos = alg ? alg.entries.filter(e=>!e.detail.negation) : [];
+  const conflict = alg && alg.entries.some(e=>e.reconciliation==="conflict");
+  let achip = "";
+  if(!alg) achip = "";
+  else if(pos.length) achip = `<span class="bchip allergy">Allergies: ${esc(pos.map(e=>e.display.replace(/^Allergy to /i,"")).join(", "))}</span>`;
+  else achip = `<span class="bchip nka">${esc(alg.summary||"No allergy information")}</span>`;
+  if(conflict) achip += `<span class="bchip conflict">Allergy information conflicts</span>`;
+  const asked = REC.sources.filter(s=>s.status!=="not_asked");
+  const ok = asked.filter(s=>["complete","partial","no_matching_data"].includes(s.status)).length;
+  const navItems = [["summary","Summary"]].concat(REC.sections.map(s=>[s.id,s.label])).concat([["sources","Sources & provenance"],["modes","Modes compared"]]);
+  const fr = REC.freshness;
+  const modeChip = `<span class="bchip ${REC.mode==="federated"?"status":"mode"}">${{federated:"Federated live",hybrid:"Hybrid",materialised:"Materialised view"}[REC.mode]} · ${REC.elapsed_ms} ms</span>`
+    + (fr && REC.mode==="materialised" ? `<span class="bchip ${fr.rebuild_required?"conflict":"status"}">Built ${fr.age_hours<1?Math.round(fr.age_hours*60)+" min":fr.age_hours+" h"} ago · ${esc(fr.built_under)}${fr.rebuild_required?" · rebuild required":""}</span>` : "")
+    + (Object.keys(REC.stale_sources||{}).length ? `<span class="bchip conflict">Stale: ${Object.keys(REC.stale_sources).map(short).map(esc).join(", ")}</span>` : "");
+  $("#app").innerHTML = `
+  <div class="banner">
+    <div><div class="name">${esc(d.name.toUpperCase().split(" ").reverse().join(", "))} <span style="font-weight:400;font-size:14px;color:var(--bandmuted)">(synthetic)</span></div>
+      <div class="demo"><span>Born <b>${fmtD(d.birth_date)}</b> (${d.age} y)</span><span>Sex <b>${esc(d.sex)}</b></span><span>ID <b>${esc(REC.subject)}</b></span></div></div>
+    <div class="right">${achip}${modeChip}<span class="bchip status">Catalogue ${esc(REC.catalogue_version)}</span><span class="bchip status">${REC.overall_status==="complete"?"Complete":"Partial"} · ${ok} of ${asked.length} sources answered · as at ${fmtD(REC.as_at)} ${REC.as_at.slice(11,16)}</span></div>
+  </div>
+  <div class="strip"><span class="lbl">Sources</span>${REC.sources.map(s=>`<span class="src" title="${esc(s.detail)}"><i class="dot" style="background:${scol(s.source)}"></i>${esc(short(s.source))} <span class="pill ${srcClass(s.status)}">${SRC_STATUS[s.status]}</span></span>`).join("")}
+    ${REC.excluded.map(e=>`<span class="src" title="${esc(e.reason)}"><i class="dot" style="background:var(--faint)"></i>${esc(e.source)} <span class="pill c-not_asked">Not catalogued</span></span>`).join("")}</div>
+  <div class="layout">
+    <nav class="nav">${navItems.map(([id,l])=>{ const sec = section(id); const n = sec? sec.entries.length : ""; const rv = sec? sec.entries.filter(e=>["needs-review","conflict"].includes(e.reconciliation)).length:0; const c = sec && sec.entries.some(e=>e.reconciliation==="conflict");
+      return `<a data-p="${id}" class="${PANE===id?"on":""}"><span>${esc(l)}</span>${rv?`<span class="rv ${c?"c":""}">${rv}</span>`:`<span class="cnt">${n}</span>`}</a>`; }).join("")}</nav>
+    <main class="main" id="pane"></main>
+  </div>`;
+  document.querySelectorAll(".nav a").forEach(a=>a.onclick=()=>{PANE=a.dataset.p; render(); window.scrollTo({top:0});});
+  $("#pane").innerHTML = (PANES[PANE]||PANES.summary)();
+  wire();
+}
+function srcClass(st){ return {stale:"c-stale",complete:"c-contributed",no_matching_data:"c-no_data",partial:"c-identity_uncertain",not_asked:"c-not_asked",identity_uncertain:"c-identity_uncertain",semantics_unresolved:"c-semantics_unresolved"}[st] || "c-unavailable"; }
+function wire(){
+  document.querySelectorAll("[data-s]").forEach(el=>el.onclick=ev=>{ev.stopPropagation(); showStmt(el.dataset.s);});
+  document.querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>{PANE=el.dataset.go; render();});
+  document.querySelectorAll("[data-dl]").forEach(el=>el.onclick=()=>download(el.dataset.dl));
+}
+function cov(id){ const s = section(id); if(!s) return ""; return `<div class="cov">${s.coverage.map(c=>`<span class="c-${c.status}" title="${esc(c.detail)}">${esc(c.label)}: ${COV[c.status]||c.status}${c.status==="contributed"?" "+c.count:""}</span>`).join("")}</div>`; }
+function head(id, extra=""){ const s = section(id); return `<h2>${esc(s.label)}</h2><p class="sub">${extra}Coverage by source for this section:</p>${cov(id)}${s.summary?`<p><strong>${esc(s.summary)}</strong></p>`:""}`; }
+function notesRow(e, cols){ return e.notes.length ? `<tr><td class="note" colspan="${cols}"><ul>${e.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul></td></tr>` : ""; }
+
+const PANES = {
+summary(){
+  const a = REC.alerts;
+  const prob = section("problems"), med = section("medications"), alg = section("allergies"), res = section("results"), enc = section("encounters");
+  const card = (title, go, body) => `<div class="card"><h3>${title}<a data-go="${go}">Open</a></h3>${body}</div>`;
+  const list = (items, f, empty) => items.length ? items.map(f).join("") : `<div class="empty">${empty}</div>`;
+  return `<h2>Summary</h2><p class="sub">Assembled at request time from ${REC.sources.filter(s=>s.status!=="not_asked").length} sources. Nothing here is stored centrally; every line links to the records behind it.</p>
+  ${a.length?`<div class="alerts">${a.map(x=>`<div class="alert ${x.level}" ${x.section?`data-go="${x.section}"`:`data-go="sources"`}>${esc(x.text)}</div>`).join("")}</div>`:""}
+  <div class="cards">
+   ${med?card("Current medications","medications", list(med.entries.filter(e=>e.status==="current"), e=>`<div class="row"><div class="l"><div class="t">${esc(e.display)}</div><div class="m">${esc(e.detail.indicative_dose||"")}${e.detail.indicative_source?` · ${esc(short(e.detail.indicative_source))}`:""}</div></div><div>${recon(e.reconciliation)}</div></div>`,"No current medications from the sources that answered")):""}
+   ${prob?card("Active problems","problems", list(prob.entries.filter(e=>e.status==="active"), e=>`<div class="row"><div class="l"><div class="t">${esc(e.display)}</div><div class="m">${e.sources.map(short).join(", ")}${e.detail.onset?` · since ${fmtD(e.detail.onset)}`:""}</div></div><div>${e.reconciliation==="needs-review"?recon(e.reconciliation):""}</div></div>`,"No active problems recorded")):""}
+   ${alg?card("Allergies","allergies", (alg.summary?`<div class="empty" style="font-style:normal">${esc(alg.summary)}</div>`:"") + alg.entries.map(e=>`<div class="row"><div class="l"><div class="t">${esc(e.display)}</div><div class="m">${e.sources.map(short).join(", ")}${(e.detail.reactions||[]).length?` · ${esc(e.detail.reactions.join("; "))}`:""}</div></div><div>${e.reconciliation==="conflict"?recon("conflict"):""}</div></div>`).join("")):""}
+   ${res?card("Latest results","results", list(res.entries, e=>`<div class="row"><div class="l"><div class="t">${esc(e.display)}</div><div class="m">${fmtD(e.detail.date)} · ${e.sources.map(short).join(", ")}</div></div><div style="text-align:right"><span class="num" style="font-weight:600">${esc(e.detail.value)}</span> <span class="m">${esc(e.detail.unit)}</span>${spark(e)}</div></div>`,"No results in the look-back window")):""}
+   ${enc?card("Recent encounters","encounters", list(enc.entries.slice(0,4), e=>`<div class="row"><div class="l"><div class="t">${esc(e.display)}</div><div class="m">${esc(e.detail.setting||"")} · ${esc(short(e.sources[0]))}</div></div><div class="m num">${fmtD(e.detail.start)}</div></div>`,"No encounters in the look-back window")):""}
+  </div>`;
+},
+medications(){
+  const sec = section("medications");
+  const srcs = CAT.sources.filter(s=>s.exposes.some(x=>x.record_class==="medication")).map(s=>s.id);
+  const hasRx = CAT.sources.some(s=>s.id==="pharmacy");
+  const cols = 2 + srcs.length + (hasRx?1:0);
+  const rowFor = e => {
+    const daily = new Set(Object.values(e.detail.cells).filter(c=>c.current && c.daily_amount!=null).map(c=>c.daily_amount));
+    const diff = daily.size>1;
+    const cell = src => { const c = e.detail.cells[src]; if(!c) return `<td><span class="na">—</span></td>`;
+      return `<td><div class="cell ${c.current===false?"stopped":""} ${diff&&c.current&&c.daily_amount!=null?"diff":""}" data-s="${esc(c.statement)}"><div class="d">${esc(c.dose_text||c.status)}</div><div class="m">${esc(c.role)} · ${c.current===false?esc(c.status)+" · ":""}${agoTxt(c.asserted)}</div></div></td>`; };
+    const rxCov = sec.coverage.find(c=>c.source==="pharmacy");
+    const rx = () => { const c = e.detail.cells.pharmacy; if(!c) return `<td><span class="na">${!rxCov?"—":["contributed","no_data"].includes(rxCov.status)?"none in look-back":esc(COV[rxCov.status]||rxCov.status)}</span></td>`;
+      return `<td><div class="cell ${e.flags.includes("not-dispensed-recently")?"warn":""}" data-s="${esc(c.statement)}"><div class="d">${agoTxt(c.asserted)}</div><div class="m">qty ${esc(c.quantity)} · ${c.count} in window</div></div></td>`; };
+    return `<tr><td><strong>${esc(e.display)}</strong><div>${flags(e.flags)}</div></td>${srcs.map(cell).join("")}${hasRx?rx():""}<td>${recon(e.reconciliation)}</td></tr>${notesRow(e, cols)}`;
+  };
+  const cur = sec.entries.filter(e=>e.status!=="past"), past = sec.entries.filter(e=>e.status==="past");
+  const thead = `<tr><th>Medicine</th>${srcs.map(s=>`<th><i class="dot" style="background:${scol(s)}"></i> ${esc(short(s))}</th>`).join("")}${hasRx?`<th><i class="dot" style="background:${scol("pharmacy")}"></i> Last dispensed</th>`:""}<th>Reconciliation</th></tr>`;
+  return head("medications","What each source currently asserts, side by side, with dispensing as evidence of supply. Differences are shown, not resolved. ")
+    + `<div class="panel scroll"><table><thead>${thead}</thead><tbody>${cur.map(rowFor).join("") || `<tr><td colspan="${cols}" class="empty">No current medications from the sources that answered</td></tr>`}</tbody></table></div>`
+    + (past.length?`<h3>Stopped or completed in the look-back window</h3><div class="panel scroll"><table><thead>${thead}</thead><tbody>${past.map(rowFor).join("")}</tbody></table></div>`:"");
+},
+problems(){
+  const sec = section("problems");
+  const tbl = list => `<div class="panel scroll"><table><thead><tr><th>Problem</th><th>Recorded by (native code)</th><th>Since</th><th>Status</th><th></th></tr></thead><tbody>${list.map(e=>`<tr><td><strong>${esc(e.display)}</strong><div>${flags(e.flags)}</div></td><td>${chips(e)}</td><td class="num">${fmtD(e.detail.onset)}</td><td>${esc(e.status)}</td><td>${recon(e.reconciliation)}</td></tr>${notesRow(e,5)}`).join("")}</tbody></table></div>`;
+  const act = sec.entries.filter(e=>e.status==="active"), past = sec.entries.filter(e=>e.status!=="active");
+  return head("problems","Diagnoses recorded at different levels of detail are grouped, never re-coded. ") + `<h3>Active</h3>` + (act.length?tbl(act):`<div class="empty">None recorded by the sources that answered</div>`) + (past.length?`<h3>Past</h3>`+tbl(past):"");
+},
+allergies(){
+  const sec = section("allergies");
+  return head("allergies","Grouped under the broadest recorded class. A 'no known allergy' statement alongside a recorded allergy is a conflict, not a tie-break. ")
+   + (sec.entries.length?`<div class="panel scroll"><table><thead><tr><th>Allergy or statement</th><th>Recorded by</th><th>Reaction</th><th></th></tr></thead><tbody>${sec.entries.map(e=>`<tr><td><strong>${esc(e.display)}</strong><div>${flags(e.flags)}</div></td><td>${chips(e)}</td><td>${esc((e.detail.reactions||[]).join("; "))}</td><td>${recon(e.reconciliation)}</td></tr>${notesRow(e,4)}`).join("")}</tbody></table></div>`:"");
+},
+immunizations(){
+  const sec = section("immunizations");
+  return head("immunizations") + `<div class="panel scroll"><table><thead><tr><th>Vaccination</th><th>Given</th><th>Recorded by</th><th>Batch</th></tr></thead><tbody>${sec.entries.map(e=>`<tr><td><strong>${esc(e.display)}</strong><div>${flags(e.flags)}</div></td><td class="num">${fmtD(e.detail.date)}</td><td>${chips(e)}</td><td>${esc(e.detail.batch||"")}</td></tr>${notesRow(e,4)}`).join("") || `<tr><td colspan="4" class="empty">None recorded</td></tr>`}</tbody></table></div>`;
+},
+results(){ return obsPane("results"); },
+"vital-signs"(){ return obsPane("vital-signs"); },
+encounters(){
+  const sec = section("encounters");
+  return head("encounters") + `<div class="timeline">${sec.entries.map(e=>`<div class="tl" style="--c:${scol(e.sources[0])}"><div class="num muted">${fmtD(e.detail.start)}${e.detail.end && e.detail.end.slice(0,10)!==e.detail.start.slice(0,10)?" – "+fmtD(e.detail.end):""}</div><div><strong>${esc(e.display)}</strong> · ${esc(e.detail.setting||"")} · <span class="schip" data-s="${esc(e.members[0])}"><i class="dot" style="background:${scol(e.sources[0])}"></i>${esc(short(e.sources[0]))}</span></div>${e.detail.reason||S[e.members[0]].text?`<div class="muted">${esc(e.detail.reason||S[e.members[0]].text)}</div>`:""}</div>`).join("") || `<div class="empty">None in the look-back window</div>`}</div>`;
+},
+documents(){
+  const sec = section("documents");
+  return head("documents") + (sec.entries.map(e=>`<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><strong>${esc(e.display)}</strong><div class="muted" style="font-size:12px">${esc(e.detail.doc_type||"")} · ${esc(e.detail.author||"")}</div></div><div class="num muted">${fmtD(e.detail.start)} <span class="schip" data-s="${esc(e.members[0])}"><i class="dot" style="background:${scol(e.sources[0])}"></i>${esc(short(e.sources[0]))}</span></div></div><details><summary>Show document text</summary><div class="doc">${esc(e.detail.text)}</div></details></div>`).join("") || `<div class="empty">No documents from the sources that answered</div>`);
+},
+modes(){
+  setTimeout(loadModes, 0);
+  return `<h2>Modes compared</h2><p class="sub">The same person's record served three ways, now, with the current outage settings and deadline. Federated asks every source live. Hybrid asks live and fills only failed sources from the materialised view, marked stale. Materialised serves the view as built: fast and complete, but as old as its build.</p><div id="modesOut" class="loading">Assembling three ways…</div>`;
+},
+sources(){
+  return `<h2>Sources & provenance</h2><p class="sub">Request ${esc(REC.request_id)} · catalogue ${esc(REC.catalogue_version)} · terminology ${esc(REC.terminology_version)} · look-back from ${fmtD(REC.window_from)}</p>
+  <div class="panel scroll"><table><thead><tr><th>Source</th><th>Status</th><th>Statements</th><th>Detail</th><th>Time</th></tr></thead><tbody>
+  ${REC.sources.map(s=>`<tr><td><i class="dot" style="background:${scol(s.source)}"></i> <strong>${esc(s.label)}</strong><div class="muted" style="font-size:12px">${esc(s.interface)}</div></td><td><span class="pill ${srcClass(s.status)}">${SRC_STATUS[s.status]}</span></td><td class="num">${s.items_returned}</td><td>${esc(s.detail)}</td><td class="num muted">${s.elapsed_ms!=null?s.elapsed_ms+" ms":""}</td></tr>`).join("")}
+  ${REC.excluded.map(e=>`<tr><td><strong>${esc(e.source)}</strong></td><td><span class="pill c-not_asked">Not catalogued</span></td><td>–</td><td>${esc(e.reason)}</td><td></td></tr>`).join("")}
+  </tbody></table></div>
+  <h3>Exports</h3><p><button class="btn ghost" data-dl="ips">Download IPS-shaped FHIR Bundle</button> <button class="btn ghost" data-dl="prov">Download W3C PROV</button> <button class="btn ghost" data-dl="record">Download full record JSON</button></p>
+  <h3>Native queries generated from this one request</h3>${REC.sources.filter(s=>s.native_queries.length).map(s=>`<details><summary>${esc(s.label)} (${s.native_queries.length})</summary>${s.native_queries.map(q=>`<pre>${esc(q)}</pre>`).join("")}</details>`).join("")}
+  <h3>Warnings</h3>${REC.warnings.length?REC.warnings.map(w=>`<div class="alert info" style="cursor:default">${esc(w)}</div>`).join(""):`<div class="empty">None</div>`}`;
+}
+};
+
+async function loadModes(){
+  const out = $("#modesOut"); if(!out) return;
+  const r = await fetch(`/api/view/modes/${encodeURIComponent($("#subject").value)}?deadline=${+$("#deadline").value||3}`).then(x=>x.json());
+  const cols = ["federated","hybrid","materialised"];
+  const cell = (m, f) => r[m] ? f(r[m]) : `<span class="muted">${esc(r.materialised_unavailable||"—")}</span>`;
+  const srcs = [...new Set(cols.flatMap(m=>r[m]?Object.keys(r[m].sources):[]))];
+  const row = (label, f) => `<tr><th>${label}</th>${cols.map(m=>`<td>${cell(m,f)}</td>`).join("")}</tr>`;
+  const age = x => { const t = Date.parse(x.as_of); const m = Math.round((Date.now()-t)/60000); return m<1?"now":m<120?m+" min ago":Math.round(m/60)+" h ago"; };
+  out.className = "";
+  out.innerHTML = `<div class="panel scroll"><table class="mtab"><thead><tr><th></th>${cols.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>
+    ${row("Response time", x=>`<strong class="num">${x.elapsed_ms} ms</strong>`)}
+    ${row("Data as of", x=>`${age(x)}${x.freshness&&x.freshness.rebuild_required&&x.mode==="materialised"?` <span class="flag w">rebuild required</span>`:""}`)}
+    ${row("Catalogue", x=>esc(x.catalogue_version))}
+    ${row("Overall", x=>esc(x.overall))}
+    ${srcs.map(sid=>row(esc(short(sid)), x=>{ const st = x.sources[sid]; return st?`<span class="pill ${srcClass(st)}">${SRC_STATUS[st]||st}</span>`:"—"; })).join("")}
+    ${row("Alerts", x=>`${x.alerts.critical} critical · ${x.alerts.warning} warning`)}
+    ${row("Entries", x=>x.entries)}
+    ${row("Documents", x=>x.documents)}
+    ${row("Needs review or conflict", x=>x.needs_review.length?`<strong>${x.needs_review.length}</strong><ul style="margin:4px 0 0;padding-left:16px;font-size:12.5px">${x.needs_review.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`:"0")}
+  </tbody></table></div>
+  <p class="muted" style="font-size:12.5px">Try it with the GP offline (Simulate outage), or after simulating new clinical activity in the workbench's Materialised view pane: federated loses the GP; hybrid keeps its last known data, marked stale; materialised shows everything as it was at build time, including what has since changed.</p>`;
+}
+function obsPane(id){
+  const sec = section(id);
+  return head(id, id==="results"?"Values keep their native units; converted values are marked. eGFR equations are kept apart. ":"") + (sec.entries.length?`<div class="results">${sec.entries.map(e=>`<div class="card"><h3 style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink)">${esc(e.display)} <span class="muted" style="font-weight:400;font-size:12px">${esc(e.detail.unit)}</span></h3><div>${flags(e.flags)}</div>${chart(e)}
+    <div class="scroll"><table><thead><tr><th>Date</th><th>Value</th><th>Source</th></tr></thead><tbody>${e.detail.series.slice().reverse().map(p=>{const s=S[p.id]; return `<tr><td class="num">${fmtD(p.t)}</td><td class="num"><strong>${esc(p.v)}</strong>${s.flags.includes("derived")?` <span class="muted">(native ${esc(s.value)} ${esc(s.unit)})</span>`:""}${s.flags.includes("amended")?` <span class="flag w">amended</span>`:""}</td><td><span class="schip" data-s="${esc(s.id)}"><i class="dot" style="background:${scol(s.source)}"></i>${esc(short(s.source))}</span></td></tr>`;}).join("")}</tbody></table></div>
+    ${e.notes.length?`<ul class="muted" style="font-size:12.5px;padding-left:18px">${e.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`:""}</div>`).join("")}</div>`:`<div class="empty">No values in the look-back window</div>`);
+}
+function spark(e){
+  const pts = e.detail.series.filter(p=>typeof p.v==="number"); if(pts.length<2) return "";
+  const W=90,H=22, xs=pts.map(p=>Date.parse(p.t)), ys=pts.map(p=>p.v), x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const X=t=>2+(t-x0)/((x1-x0)||1)*(W-4), Y=v=>H-3-(v-y0)/((y1-y0)||1)*(H-6);
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;margin-left:auto" aria-hidden="true"><polyline fill="none" stroke="var(--accent)" stroke-width="1.5" points="${pts.map(p=>X(Date.parse(p.t))+","+Y(p.v)).join(" ")}"/><circle cx="${X(xs.at(-1))}" cy="${Y(ys.at(-1))}" r="2.5" fill="var(--accent)"/></svg>`;
+}
+function chart(e){
+  const pts = e.detail.series.filter(p=>typeof p.v==="number"); if(!pts.length) return "";
+  const W=320,H=140,P={l:38,r:10,t:10,b:22};
+  const xs=pts.map(p=>Date.parse(p.t)), ys=pts.map(p=>p.v);
+  let x0=Math.min(...xs), x1=Math.max(...xs); if(x0===x1){x0-=864e5*15;x1+=864e5*15;}
+  let y0=Math.min(...ys), y1=Math.max(...ys); const pad=(y1-y0)*.15||Math.abs(y1)*.1||1; y0-=pad; y1+=pad;
+  const X=t=>P.l+(t-x0)/(x1-x0)*(W-P.l-P.r), Y=v=>H-P.b-(v-y0)/(y1-y0)*(H-P.t-P.b);
+  let svg=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(e.display)} trend">`;
+  [0,.5,1].forEach(f=>{const v=y0+(y1-y0)*f; svg+=`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${P.l-6}" y="${Y(v)+4}" font-size="11" text-anchor="end" fill="var(--muted)">${Math.round(v*10)/10}</text>`;});
+  [[x0,"start"],[x1,"end"]].forEach(([t,a])=>svg+=`<text x="${X(t)}" y="${H-5}" font-size="11" text-anchor="${a}" fill="var(--muted)">${fmtD(new Date(t).toISOString()).slice(3)}</text>`);
+  const bySrc={}; pts.forEach(p=>(bySrc[p.source] ||= []).push(p));
+  Object.entries(bySrc).forEach(([src,l])=>{ if(l.length>1) svg+=`<polyline fill="none" stroke="${scol(src)}" stroke-width="1.8" points="${l.map(p=>X(Date.parse(p.t))+","+Y(p.v)).join(" ")}"/>`; });
+  pts.forEach(p=>{const s=S[p.id]; const hollow=s.flags.includes("amended")||s.flags.includes("derived"); svg+=`<circle cx="${X(Date.parse(p.t))}" cy="${Y(p.v)}" r="4" fill="${hollow?"var(--panel)":scol(p.source)}" stroke="${scol(p.source)}" stroke-width="2"><title>${esc(short(p.source))} ${fmtD(p.t)}: ${esc(p.v)}${hollow?" ("+(s.flags.includes("amended")?"amended":"converted")+")":""}</title></circle>`;});
+  svg+=`</svg>`;
+  return svg + `<div class="legend">${Object.keys(bySrc).map(s=>`<span><i class="dot" style="background:${scol(s)}"></i> ${esc(short(s))}</span>`).join("")}${pts.some(p=>S[p.id].flags.some(f=>f==="amended"||f==="derived"))?`<span>○ amended or converted</span>`:""}</div>`;
+}
+function showStmt(id){
+  const s = S[id]; const row=(k,v)=>`<div><div class="k">${esc(k)}</div>${v}</div>`;
+  const val = s.rendered_value!=null ? `${esc(s.rendered_value)} ${esc(s.rendered_unit)}` + (s.flags.includes("derived")?` (native ${esc(s.value)} ${esc(s.unit)})`:"") : s.value!=null ? `${esc(s.value)} ${esc(s.unit||"")}` : esc(s.dose_text||s.status||"");
+  $("#dlgBody").innerHTML = `<h2>${esc(s.concept?.display || s.title || s.record_class)}</h2><p class="sub">${esc(s.source_label)} · ${esc(s.record_class)} · ${esc(s.id)}</p>
+  <div class="grid2">
+   ${row("As recorded", s.native_code?`${esc(s.native_code.display||"")} <code style="font:12px var(--mono)">${esc(s.native_code.code)}</code><div class="k">${esc(s.native_code.system)}</div>`:esc(s.title||""))}
+   ${row("Read as", s.concept?`${esc(s.concept.display)} <code style="font:12px var(--mono)">${esc(s.concept.code)}</code> · ${esc(s.grade)}`:"—")}
+   ${row("Value / dose / status", val || "—")}
+   ${row("Source record", `<code style="font:12px var(--mono);word-break:break-all">${esc(s.record_id)}</code>`)}
+   ${row("Authority", esc(s.authority))}
+   ${row("Identity link", `${esc(s.match_method)} · confidence ${esc(s.match_confidence)}`)}
+   ${row("Effective", `${fmtD(s.effective_start)}${s.effective_end?" – "+fmtD(s.effective_end):""}`)}
+   ${row("Asserted / recorded", fmtD(s.asserted))}
+   ${row("Retrieved", esc(s.retrieved_at.slice(0,19).replace("T"," "))+"Z")}
+   ${row("Catalogue version", esc(REC.catalogue_version))}
+  </div>
+  <h3>Mappings and transformations applied</h3><ul class="chain">${s.transformation_chain.map(t=>`<li><strong>${esc(t.kind)}</strong> ${esc(t.id)} v${esc(t.version)}<br><span class="muted">${esc(t.detail)}</span></li>`).join("")}</ul>
+  ${s.notes.length?`<h3>Notes</h3><ul>${s.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`:""}
+  ${s.quality.length?`<h3>Source quality descriptors</h3><ul>${s.quality.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`:""}
+  <h3>Native representation</h3><pre>${esc(JSON.stringify(s.native,null,2))}</pre>`;
+  $("#dlg").showModal();
+}
+async function download(kind){
+  const fmt = kind==="record"?"record":kind;
+  const v = $("#version").value;
+  const r = await fetch(`/api/record?format=${fmt}${v?`&version=${v}`:""}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(lir())});
+  const blob = new Blob([JSON.stringify(await r.json(),null,2)],{type:"application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${REC.subject}-${kind}.json`; a.click(); URL.revokeObjectURL(a.href);
+}
+$("#go").onclick = load;
+$("#subject").onchange = load;
+$("#purpose").onchange = load;
+$("#version").onchange = load;
+$("#mode").onchange = load;
+init();
+</script>
+</body>
+</html>

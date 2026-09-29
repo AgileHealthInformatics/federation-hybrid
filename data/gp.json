@@ -1,0 +1,52 @@
+{
+  "_note": "GP practice system, exposed through a governed SQL service. Dates written as @-N are N days before the demonstrator starts (@-N T HH for a time). All content is synthetic.",
+  "tables": {
+    "PROBLEMS": [
+      {"PROBLEM_ID": "PR-1", "PATIENT_ID": "GP-77120", "CODE": "44054006", "TERM": "Type 2 diabetes mellitus", "STATUS": "active", "SIGNIFICANCE": "major", "ONSET": "@-3650", "RECORDED": "@-3640", "END_DATE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"PROBLEM_ID": "PR-2", "PATIENT_ID": "GP-77120", "CODE": "59621000", "TERM": "Essential hypertension", "STATUS": "active", "SIGNIFICANCE": "major", "ONSET": "@-5100", "RECORDED": "@-5100", "END_DATE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"PROBLEM_ID": "PR-3", "PATIENT_ID": "GP-77120", "CODE": "700379002", "TERM": "Chronic kidney disease stage 3A", "STATUS": "active", "SIGNIFICANCE": "major", "ONSET": "@-400", "RECORDED": "@-395", "END_DATE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"PROBLEM_ID": "PR-4", "PATIENT_ID": "GP-77120", "CODE": "195967001", "TERM": "Asthma", "STATUS": "active", "SIGNIFICANCE": "minor", "ONSET": "@-900", "RECORDED": "@-900", "END_DATE": null, "ENTERED_IN_ERROR": 1, "RESTRICTED": 0},
+      {"PROBLEM_ID": "PR-5", "PATIENT_ID": "GP-77120", "CODE": "385093006", "TERM": "Community acquired pneumonia", "STATUS": "resolved", "SIGNIFICANCE": "minor", "ONSET": "@-62", "RECORDED": "@-40", "END_DATE": "@-40", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+
+      {"PROBLEM_ID": "PR-21", "PATIENT_ID": "GP-80455", "CODE": "195967001", "TERM": "Asthma", "STATUS": "active", "SIGNIFICANCE": "major", "ONSET": "@-9000", "RECORDED": "@-9000", "END_DATE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"PROBLEM_ID": "PR-22", "PATIENT_ID": "GP-80455", "CODE": "61582004", "TERM": "Allergic rhinitis", "STATUS": "active", "SIGNIFICANCE": "minor", "ONSET": "@-6000", "RECORDED": "@-6000", "END_DATE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"PROBLEM_ID": "PR-23", "PATIENT_ID": "GP-80455", "CODE": "000000000", "TERM": "Restricted entry", "STATUS": "active", "SIGNIFICANCE": "minor", "ONSET": "@-800", "RECORDED": "@-800", "END_DATE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 1}
+    ],
+    "MEDICATIONS": [
+      {"MED_ID": "MD-1", "PATIENT_ID": "GP-77120", "DRUG_CODE": "VMP-MET500", "DRUG_NAME": "Metformin 500mg tablets", "DOSE_TEXT": "Two tablets twice a day", "DOSE_QTY": 2, "FREQ_PER_DAY": 2, "COURSE_TYPE": "repeat", "STATUS": "active", "START_DATE": "@-2600", "STOP_DATE": null, "STOP_REASON": null, "LAST_ISSUE": "@-20", "LAST_REVIEW": "@-180", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"MED_ID": "MD-2", "PATIENT_ID": "GP-77120", "DRUG_CODE": "VMP-RAM5", "DRUG_NAME": "Ramipril 5mg capsules", "DOSE_TEXT": "One capsule daily", "DOSE_QTY": 1, "FREQ_PER_DAY": 1, "COURSE_TYPE": "repeat", "STATUS": "active", "START_DATE": "@-2500", "STOP_DATE": null, "STOP_REASON": null, "LAST_ISSUE": "@-25", "LAST_REVIEW": "@-180", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"MED_ID": "MD-3", "PATIENT_ID": "GP-77120", "DRUG_CODE": "VMP-ATO20", "DRUG_NAME": "Atorvastatin 20mg tablets", "DOSE_TEXT": "One tablet at night", "DOSE_QTY": 1, "FREQ_PER_DAY": 1, "COURSE_TYPE": "repeat", "STATUS": "active", "START_DATE": "@-2000", "STOP_DATE": null, "STOP_REASON": null, "LAST_ISSUE": "@-18", "LAST_REVIEW": "@-180", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"MED_ID": "MD-4", "PATIENT_ID": "GP-77120", "DRUG_CODE": "VMP-AML5", "DRUG_NAME": "Amlodipine 5mg tablets", "DOSE_TEXT": "One tablet daily", "DOSE_QTY": 1, "FREQ_PER_DAY": 1, "COURSE_TYPE": "repeat", "STATUS": "stopped", "START_DATE": "@-1500", "STOP_DATE": "@-300", "STOP_REASON": "Ankle oedema", "LAST_ISSUE": "@-330", "LAST_REVIEW": "@-300", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"MED_ID": "MD-5", "PATIENT_ID": "GP-77120", "DRUG_CODE": "VMP-API5", "DRUG_NAME": "Apixaban 5mg tablets", "DOSE_TEXT": "One tablet twice a day", "DOSE_QTY": 1, "FREQ_PER_DAY": 2, "COURSE_TYPE": "repeat", "STATUS": "active", "START_DATE": "@-40", "STOP_DATE": null, "STOP_REASON": null, "LAST_ISSUE": "@-10", "LAST_REVIEW": "@-40", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+
+      {"MED_ID": "MD-21", "PATIENT_ID": "GP-80455", "DRUG_CODE": "VMP-SAL100", "DRUG_NAME": "Salbutamol 100micrograms/dose inhaler", "DOSE_TEXT": "Two puffs when required", "DOSE_QTY": 2, "FREQ_PER_DAY": null, "COURSE_TYPE": "repeat", "STATUS": "active", "START_DATE": "@-5000", "STOP_DATE": null, "STOP_REASON": null, "LAST_ISSUE": "@-30", "LAST_REVIEW": "@-30", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"MED_ID": "MD-22", "PATIENT_ID": "GP-80455", "DRUG_CODE": "VMP-BEC100", "DRUG_NAME": "Beclometasone 100micrograms/dose inhaler", "DOSE_TEXT": "Two puffs twice a day", "DOSE_QTY": 2, "FREQ_PER_DAY": 2, "COURSE_TYPE": "repeat", "STATUS": "active", "START_DATE": "@-4000", "STOP_DATE": null, "STOP_REASON": null, "LAST_ISSUE": "@-30", "LAST_REVIEW": "@-30", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0}
+    ],
+    "ALLERGIES": [
+      {"ALLERGY_ID": "AL-1", "PATIENT_ID": "GP-77120", "CODE": "91936005", "TERM": "Allergy to penicillin", "REACTION": "Widespread rash", "SEVERITY": "moderate", "STATUS": "active", "RECORDED": "@-4000", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"ALLERGY_ID": "AL-21", "PATIENT_ID": "GP-80455", "CODE": "716186003", "TERM": "No known allergy", "REACTION": null, "SEVERITY": null, "STATUS": "active", "RECORDED": "@-2000", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0}
+    ],
+    "IMMUNISATIONS": [
+      {"IMM_ID": "IM-1", "PATIENT_ID": "GP-77120", "CODE": "86198006", "TERM": "Influenza vaccination", "GIVEN_DATE": "@-170", "RECORDED": "@-165", "GIVEN_BY": "Community pharmacy (notified)", "BATCH": "FLU-DEMO-2025A", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"IMM_ID": "IM-2", "PATIENT_ID": "GP-77120", "CODE": "840534001", "TERM": "SARS-CoV-2 vaccination", "GIVEN_DATE": "@-390", "RECORDED": "@-390", "GIVEN_BY": "Practice", "BATCH": "COV-DEMO-24B", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"IMM_ID": "IM-3", "PATIENT_ID": "GP-77120", "CODE": "12866006", "TERM": "Pneumococcal vaccination", "GIVEN_DATE": "@-1500", "RECORDED": "@-1500", "GIVEN_BY": "Practice", "BATCH": "PPV-DEMO-21", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"IMM_ID": "IM-21", "PATIENT_ID": "GP-80455", "CODE": "86198006", "TERM": "Influenza vaccination", "GIVEN_DATE": "@-175", "RECORDED": "@-175", "GIVEN_BY": "Practice", "BATCH": "FLU-DEMO-2025B", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0}
+    ],
+    "OBSERVATIONS": [
+      {"OBS_ID": "OB-1", "PATIENT_ID": "GP-77120", "CATEGORY": "laboratory", "TEST_CODE": "HBA1C_DCCT", "TEST_NAME": "HbA1c (DCCT)", "VALUE": 7.6, "UNITS": "%", "EFFECTIVE": "@-700", "RECORDED": "@-690", "NOTE": "Imported from previous practice system", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"OBS_ID": "OB-2", "PATIENT_ID": "GP-77120", "CATEGORY": "laboratory", "TEST_CODE": "HBA1C", "TEST_NAME": "HbA1c", "VALUE": 61, "UNITS": "mmol/mol", "EFFECTIVE": "@-540", "RECORDED": "@-538", "NOTE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"OBS_ID": "OB-3", "PATIENT_ID": "GP-77120", "CATEGORY": "laboratory", "TEST_CODE": "HBA1C", "TEST_NAME": "HbA1c", "VALUE": 64, "UNITS": "mmol/mol", "EFFECTIVE": "@-180", "RECORDED": "@-178", "NOTE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"OBS_ID": "OB-4", "PATIENT_ID": "GP-77120", "CATEGORY": "laboratory", "TEST_CODE": "HBA1C", "TEST_NAME": "HbA1c", "VALUE": 66, "UNITS": "mmol/mol", "EFFECTIVE": "@-20", "RECORDED": "@-18", "NOTE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"OBS_ID": "OB-5", "PATIENT_ID": "GP-77120", "CATEGORY": "vital-sign", "TEST_CODE": "SBP", "TEST_NAME": "Systolic BP", "VALUE": 148, "UNITS": "mm[Hg]", "EFFECTIVE": "@-180", "RECORDED": "@-180", "NOTE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"OBS_ID": "OB-6", "PATIENT_ID": "GP-77120", "CATEGORY": "vital-sign", "TEST_CODE": "DBP", "TEST_NAME": "Diastolic BP", "VALUE": 88, "UNITS": "mm[Hg]", "EFFECTIVE": "@-180", "RECORDED": "@-180", "NOTE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"OBS_ID": "OB-7", "PATIENT_ID": "GP-77120", "CATEGORY": "vital-sign", "TEST_CODE": "SBP", "TEST_NAME": "Systolic BP", "VALUE": 142, "UNITS": "mm[Hg]", "EFFECTIVE": "@-20", "RECORDED": "@-20", "NOTE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"OBS_ID": "OB-8", "PATIENT_ID": "GP-77120", "CATEGORY": "vital-sign", "TEST_CODE": "DBP", "TEST_NAME": "Diastolic BP", "VALUE": 84, "UNITS": "mm[Hg]", "EFFECTIVE": "@-20", "RECORDED": "@-20", "NOTE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 0}
+    ],
+    "CONSULTATIONS": [
+      {"CONS_ID": "CN-1", "PATIENT_ID": "GP-77120", "CONS_TYPE": "Medication review", "CLINICIAN_ROLE": "GP", "LOCATION": "Riverside Medical Practice", "CONS_DATE": "@-180", "SUMMARY": "Annual medication review. No changes.", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"CONS_ID": "CN-2", "PATIENT_ID": "GP-77120", "CONS_TYPE": "Post-discharge review", "CLINICIAN_ROLE": "GP", "LOCATION": "Riverside Medical Practice", "CONS_DATE": "@-40", "SUMMARY": "Seen after admission with AF and pneumonia. Apixaban added to repeats. Discharge summary to be actioned in full.", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"CONS_ID": "CN-3", "PATIENT_ID": "GP-77120", "CONS_TYPE": "Diabetes annual review", "CLINICIAN_ROLE": "Practice nurse", "LOCATION": "Riverside Medical Practice", "CONS_DATE": "@-20", "SUMMARY": "HbA1c rising. Foot check normal.", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"CONS_ID": "CN-21", "PATIENT_ID": "GP-80455", "CONS_TYPE": "Asthma review", "CLINICIAN_ROLE": "Practice nurse", "LOCATION": "Riverside Medical Practice", "CONS_DATE": "@-30", "SUMMARY": "Inhaler technique checked. Asthma action plan updated.", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0}
+    ]
+  }
+}

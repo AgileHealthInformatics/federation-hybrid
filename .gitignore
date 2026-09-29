@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local runtime output
+audit.jsonl
+*.log
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Local control-plane store
+.fhr/
+*.db

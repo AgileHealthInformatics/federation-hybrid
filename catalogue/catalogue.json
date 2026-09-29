@@ -1,0 +1,480 @@
+{
+  "catalogue_version": "seed",
+  "description": "Control-plane catalogue for the federated patient record demonstrator. All sources, people and values are synthetic.",
+  "purposes": [
+    "direct-care",
+    "secondary-use",
+    "research"
+  ],
+  "identity_thresholds": {
+    "direct-care": 0.9,
+    "secondary-use": 0.95,
+    "research": 0.99
+  },
+  "reconciliation": {
+    "dispensing_gap_days": 90,
+    "same_event_days": 7,
+    "history_window_days": 730,
+    "medication_history_days": 3650
+  },
+  "sections": [
+    {
+      "id": "problems",
+      "label": "Problems",
+      "ips_loinc": "11450-4",
+      "record_classes": [
+        "condition"
+      ]
+    },
+    {
+      "id": "medications",
+      "label": "Medications",
+      "ips_loinc": "10160-0",
+      "record_classes": [
+        "medication",
+        "dispense"
+      ]
+    },
+    {
+      "id": "allergies",
+      "label": "Allergies and intolerances",
+      "ips_loinc": "48765-2",
+      "record_classes": [
+        "allergy"
+      ]
+    },
+    {
+      "id": "immunizations",
+      "label": "Immunisations",
+      "ips_loinc": "11369-6",
+      "record_classes": [
+        "immunization"
+      ]
+    },
+    {
+      "id": "results",
+      "label": "Results",
+      "ips_loinc": "30954-2",
+      "record_classes": [
+        "result"
+      ]
+    },
+    {
+      "id": "vital-signs",
+      "label": "Vital signs",
+      "ips_loinc": "8716-3",
+      "record_classes": [
+        "vital-sign"
+      ]
+    },
+    {
+      "id": "encounters",
+      "label": "Encounters",
+      "ips_loinc": "46240-8",
+      "record_classes": [
+        "encounter"
+      ]
+    },
+    {
+      "id": "documents",
+      "label": "Documents",
+      "ips_loinc": null,
+      "record_classes": [
+        "document"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "gp",
+      "label": "GP practice",
+      "short": "GP",
+      "owner": "Riverside Medical Practice (synthetic)",
+      "authority": "Authoritative for the primary-care problem list and community prescribing",
+      "lifecycle": "live",
+      "capability": {
+        "interface": "sql-service",
+        "purposes_accepted": [
+          "direct-care",
+          "secondary-use"
+        ],
+        "expected_latency_ms": 250,
+        "conformance": {
+          "service": "Governed query service v2",
+          "last_tested": "2026-09-10",
+          "result": "pass"
+        },
+        "endpoint": "gp"
+      },
+      "quality": [
+        "Problem list and prescribing coded in SNOMED CT and dm+d",
+        "Some historic results imported from a previous practice system"
+      ],
+      "exposes": [
+        {
+          "record_class": "condition",
+          "native": "PROBLEMS table",
+          "code_system": "http://snomed.info/sct",
+          "mapping": {
+            "id": "map:gp-condition",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        },
+        {
+          "record_class": "medication",
+          "native": "MEDICATIONS table (repeat templates, acutes)",
+          "code_system": "urn:demo:dmd",
+          "mapping": {
+            "id": "map:gp-medication",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        },
+        {
+          "record_class": "allergy",
+          "native": "ALLERGIES table",
+          "code_system": "http://snomed.info/sct",
+          "mapping": {
+            "id": "map:gp-allergy",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        },
+        {
+          "record_class": "immunization",
+          "native": "IMMUNISATIONS table",
+          "code_system": "http://snomed.info/sct",
+          "mapping": {
+            "id": "map:gp-immunization",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        },
+        {
+          "record_class": "result",
+          "native": "OBSERVATIONS table (laboratory)",
+          "code_system": "urn:demo:gp-local-test",
+          "mapping": {
+            "id": "map:gp-result",
+            "version": "1.1",
+            "lifecycle": "approved",
+            "concept_map": "cm:gp-tests-loinc"
+          }
+        },
+        {
+          "record_class": "vital-sign",
+          "native": "OBSERVATIONS table (vital-sign)",
+          "code_system": "urn:demo:gp-local-test",
+          "mapping": {
+            "id": "map:gp-vital",
+            "version": "1.1",
+            "lifecycle": "approved",
+            "concept_map": "cm:gp-tests-loinc"
+          }
+        },
+        {
+          "record_class": "encounter",
+          "native": "CONSULTATIONS table",
+          "code_system": null,
+          "mapping": {
+            "id": "map:gp-encounter",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hospital-a",
+      "label": "Hospital A (openEHR CDR)",
+      "short": "Hosp A",
+      "owner": "Hospital A (synthetic)",
+      "authority": "Authoritative for renal specialist assessment and the results it reports",
+      "lifecycle": "live",
+      "capability": {
+        "interface": "openehr-aql",
+        "purposes_accepted": [
+          "direct-care",
+          "secondary-use"
+        ],
+        "expected_latency_ms": 300,
+        "conformance": {
+          "templates": [
+            "Renal outpatient summary",
+            "Laboratory result report"
+          ],
+          "last_tested": "2026-09-01",
+          "result": "pass"
+        },
+        "endpoint": "hospital-a"
+      },
+      "quality": [
+        "Diagnoses coded in ICD-10 for activity reporting",
+        "Medication list is a clinic record of recommendations, not prescriptions"
+      ],
+      "exposes": [
+        {
+          "record_class": "condition",
+          "native": "EVALUATION.problem_diagnosis.v1",
+          "code_system": "http://hl7.org/fhir/sid/icd-10",
+          "mapping": {
+            "id": "map:ha-condition",
+            "version": "1.2",
+            "lifecycle": "approved",
+            "concept_map": "cm:icd10-snomed"
+          }
+        },
+        {
+          "record_class": "medication",
+          "native": "INSTRUCTION.medication_order.v3 (clinic list)",
+          "code_system": "urn:demo:hospital-a-formulary",
+          "mapping": {
+            "id": "map:ha-medication",
+            "version": "3.0",
+            "lifecycle": "approved",
+            "concept_map": "cm:ha-formulary-dmd"
+          }
+        },
+        {
+          "record_class": "allergy",
+          "native": "EVALUATION.adverse_reaction_risk.v1",
+          "code_system": "http://snomed.info/sct",
+          "mapping": {
+            "id": "map:ha-allergy",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        },
+        {
+          "record_class": "result",
+          "native": "OBSERVATION.laboratory_test_result.v1",
+          "code_system": "http://loinc.org",
+          "mapping": {
+            "id": "map:ha-result",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        },
+        {
+          "record_class": "encounter",
+          "native": "Composition context (outpatient)",
+          "code_system": null,
+          "mapping": {
+            "id": "map:ha-encounter",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        },
+        {
+          "record_class": "document",
+          "native": "Clinic letter composition",
+          "code_system": null,
+          "mapping": {
+            "id": "map:ha-document",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hospital-b",
+      "label": "Hospital B (FHIR R4 EPR)",
+      "short": "Hosp B",
+      "owner": "Hospital B (synthetic)",
+      "authority": "Authoritative for inpatient care and discharge prescribing",
+      "lifecycle": "live",
+      "capability": {
+        "interface": "fhir-r4-search",
+        "purposes_accepted": [
+          "direct-care",
+          "secondary-use"
+        ],
+        "expected_latency_ms": 400,
+        "conformance": {
+          "profiles": [
+            "UK Core-style Condition, MedicationRequest, AllergyIntolerance, Observation, Encounter, DocumentReference"
+          ],
+          "last_tested": "2026-08-20",
+          "result": "pass"
+        },
+        "endpoint": "hospital-b"
+      },
+      "quality": [
+        "Admission allergy history taken in the emergency department",
+        "Laboratory results may be amended after release"
+      ],
+      "exposes": [
+        {
+          "record_class": "condition",
+          "native": "Condition",
+          "code_system": "http://snomed.info/sct",
+          "mapping": {
+            "id": "map:hb-condition",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        },
+        {
+          "record_class": "medication",
+          "native": "MedicationRequest",
+          "code_system": "urn:demo:dmd",
+          "mapping": {
+            "id": "map:hb-medication",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        },
+        {
+          "record_class": "allergy",
+          "native": "AllergyIntolerance",
+          "code_system": "http://snomed.info/sct",
+          "mapping": {
+            "id": "map:hb-allergy",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        },
+        {
+          "record_class": "result",
+          "native": "Observation (laboratory)",
+          "code_system": "http://loinc.org",
+          "mapping": {
+            "id": "map:hb-result",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        },
+        {
+          "record_class": "vital-sign",
+          "native": "Observation (vital-signs)",
+          "code_system": "http://loinc.org",
+          "mapping": {
+            "id": "map:hb-vital",
+            "version": "0.1",
+            "lifecycle": "proposed",
+            "note": "Awaiting sign-off: ward observations include unvalidated device readings"
+          }
+        },
+        {
+          "record_class": "encounter",
+          "native": "Encounter",
+          "code_system": null,
+          "mapping": {
+            "id": "map:hb-encounter",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        },
+        {
+          "record_class": "document",
+          "native": "DocumentReference",
+          "code_system": null,
+          "mapping": {
+            "id": "map:hb-document",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pharmacy",
+      "label": "Community pharmacy (dispensing feed)",
+      "short": "Pharmacy",
+      "owner": "High Street Pharmacy (synthetic)",
+      "authority": "Authoritative for dispensing and pharmacy-administered vaccinations",
+      "lifecycle": "live",
+      "capability": {
+        "interface": "event-feed",
+        "purposes_accepted": [
+          "direct-care"
+        ],
+        "expected_latency_ms": 200,
+        "conformance": {
+          "service": "Dispensing event feed v1",
+          "last_tested": "2026-09-05",
+          "result": "pass"
+        },
+        "endpoint": "pharmacy"
+      },
+      "quality": [
+        "Records supply, not prescribing intent"
+      ],
+      "exposes": [
+        {
+          "record_class": "dispense",
+          "native": "dispense events",
+          "code_system": "urn:demo:dmd",
+          "mapping": {
+            "id": "map:rx-dispense",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        },
+        {
+          "record_class": "immunization",
+          "native": "vaccination events",
+          "code_system": "http://snomed.info/sct",
+          "mapping": {
+            "id": "map:rx-immunization",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        }
+      ]
+    },
+    {
+      "id": "imaging",
+      "label": "Imaging provider (DICOMweb + reports)",
+      "short": "Imaging",
+      "owner": "Regional Imaging Network (synthetic)",
+      "authority": "Authoritative for imaging reports",
+      "lifecycle": "live",
+      "capability": {
+        "interface": "dicomweb-reports",
+        "purposes_accepted": [
+          "direct-care"
+        ],
+        "expected_latency_ms": 2500,
+        "conformance": {
+          "services": [
+            "QIDO-RS",
+            "report retrieval"
+          ],
+          "last_tested": "2026-06-30",
+          "result": "pass"
+        },
+        "endpoint": "imaging"
+      },
+      "quality": [
+        "Report text only; no structured findings"
+      ],
+      "exposes": [
+        {
+          "record_class": "document",
+          "native": "Imaging report",
+          "code_system": null,
+          "mapping": {
+            "id": "map:img-document",
+            "version": "1.0",
+            "lifecycle": "approved"
+          }
+        }
+      ]
+    }
+  ],
+  "transformations": [
+    {
+      "id": "ucum:hba1c:%->mmol/mol",
+      "version": "1.0",
+      "analyte": "hba1c",
+      "from_unit": "%",
+      "to_unit": "mmol/mol",
+      "factor": 10.929,
+      "offset": -23.497,
+      "description": "HbA1c DCCT (%) to IFCC (mmol/mol): 10.929 x (DCCT - 2.15)"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "_note": "Archived previous-practice system (patient transferred out about seven years ago). Same governed view contract as the current GP system, but coded in Read v2 and a legacy drug dictionary. All content is synthetic.",
+  "tables": {
+    "PROBLEMS": [
+      {"PROBLEM_ID": "LP-1", "PATIENT_ID": "GPL-4471", "CODE": "C10F.", "TERM": "Type 2 diabetes mellitus", "STATUS": "active", "SIGNIFICANCE": "major", "ONSET": "@-3700", "RECORDED": "@-3700", "END_DATE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"PROBLEM_ID": "LP-2", "PATIENT_ID": "GPL-4471", "CODE": "G20..", "TERM": "Essential hypertension", "STATUS": "active", "SIGNIFICANCE": "major", "ONSET": "@-5150", "RECORDED": "@-5150", "END_DATE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"PROBLEM_ID": "LP-3", "PATIENT_ID": "GPL-4471", "CODE": "F26..", "TERM": "Migraine", "STATUS": "resolved", "SIGNIFICANCE": "minor", "ONSET": "@-9000", "RECORDED": "@-9000", "END_DATE": "@-6000", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"PROBLEM_ID": "LP-4", "PATIENT_ID": "GPL-4471", "CODE": "H33..", "TERM": "Asthma", "STATUS": "resolved", "SIGNIFICANCE": "minor", "ONSET": "@-20000", "RECORDED": "@-8000", "END_DATE": "@-17000", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"PROBLEM_ID": "LP-5", "PATIENT_ID": "GPL-4471", "CODE": "1371.", "TERM": "Never smoked tobacco", "STATUS": "active", "SIGNIFICANCE": "minor", "ONSET": "@-8000", "RECORDED": "@-8000", "END_DATE": null, "ENTERED_IN_ERROR": 0, "RESTRICTED": 0}
+    ],
+    "MEDICATIONS": [
+      {"MED_ID": "LM-1", "PATIENT_ID": "GPL-4471", "DRUG_CODE": "LD-GLIC80", "DRUG_NAME": "Gliclazide 80mg tablets", "DOSE_TEXT": "One tablet twice a day", "DOSE_QTY": 1, "FREQ_PER_DAY": 2, "COURSE_TYPE": "repeat", "STATUS": "stopped", "START_DATE": "@-3600", "STOP_DATE": "@-2900", "STOP_REASON": "Hypoglycaemia", "LAST_ISSUE": "@-2930", "LAST_REVIEW": "@-2900", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0},
+      {"MED_ID": "LM-2", "PATIENT_ID": "GPL-4471", "DRUG_CODE": "LD-MET500", "DRUG_NAME": "Metformin 500mg tablets", "DOSE_TEXT": "Two tablets twice a day", "DOSE_QTY": 2, "FREQ_PER_DAY": 2, "COURSE_TYPE": "repeat", "STATUS": "stopped", "START_DATE": "@-2900", "STOP_DATE": "@-2600", "STOP_REASON": "Patient transferred out", "LAST_ISSUE": "@-2610", "LAST_REVIEW": "@-2900", "ENTERED_IN_ERROR": 0, "RESTRICTED": 0}
+    ]
+  }
+}

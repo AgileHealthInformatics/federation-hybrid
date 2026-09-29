@@ -1,0 +1,8 @@
+{
+  "_note": "Imaging provider studies with report text. All content is synthetic.",
+  "studies": [
+    {"patient_id": "PACS-10442", "study_uid": "1.2.826.0.1.3680043.10.999.2001", "modality": "US", "description": "Ultrasound kidneys and bladder",
+     "study_date": "@-210T10", "reported": "@-209T16",
+     "report": "Both kidneys normal size (right 10.4 cm, left 10.8 cm). Mild bilateral increase in cortical echogenicity, in keeping with medical renal disease. No hydronephrosis. Bladder unremarkable."}
+  ]
+}

@@ -1,0 +1,365 @@
+{
+  "version": "demo-2026-09",
+  "note": "A small terminology fragment standing in for a terminology server. SNOMED CT, ICD-10 and LOINC codes are real codes used illustratively and must be verified before any real use. Medicine codes are PLACEHOLDERS standing in for dm+d VMP/VTM identifiers and are deliberately not real dm+d codes.",
+  "systems": {
+    "http://snomed.info/sct": "SNOMED CT",
+    "http://hl7.org/fhir/sid/icd-10": "ICD-10",
+    "http://loinc.org": "LOINC",
+    "urn:demo:dmd": "dm+d (placeholder codes)",
+    "urn:demo:hospital-a-formulary": "Hospital A local formulary",
+    "urn:demo:gp-local-test": "GP local test codes",
+    "http://read.info/readv2": "Read v2",
+    "urn:demo:legacy-drug": "Legacy practice drug dictionary"
+  },
+  "concepts": {
+    "http://snomed.info/sct": {
+      "44054006": {
+        "display": "Type 2 diabetes mellitus",
+        "parents": []
+      },
+      "313436004": {
+        "display": "Type 2 diabetes mellitus without complication",
+        "parents": [
+          "44054006"
+        ]
+      },
+      "38341003": {
+        "display": "Hypertensive disorder",
+        "parents": []
+      },
+      "59621000": {
+        "display": "Essential hypertension",
+        "parents": [
+          "38341003"
+        ]
+      },
+      "709044004": {
+        "display": "Chronic kidney disease",
+        "parents": []
+      },
+      "433144002": {
+        "display": "Chronic kidney disease stage 3",
+        "parents": [
+          "709044004"
+        ]
+      },
+      "700379002": {
+        "display": "Chronic kidney disease stage 3A",
+        "parents": [
+          "433144002"
+        ]
+      },
+      "49436004": {
+        "display": "Atrial fibrillation",
+        "parents": []
+      },
+      "385093006": {
+        "display": "Community acquired pneumonia",
+        "parents": []
+      },
+      "195967001": {
+        "display": "Asthma",
+        "parents": []
+      },
+      "61582004": {
+        "display": "Allergic rhinitis",
+        "parents": []
+      },
+      "91936005": {
+        "display": "Allergy to penicillin",
+        "parents": []
+      },
+      "294505008": {
+        "display": "Allergy to amoxicillin",
+        "parents": [
+          "91936005"
+        ]
+      },
+      "409137002": {
+        "display": "No known drug allergy",
+        "parents": [],
+        "negation": true
+      },
+      "716186003": {
+        "display": "No known allergy",
+        "parents": [],
+        "negation": true
+      },
+      "86198006": {
+        "display": "Influenza vaccination",
+        "parents": []
+      },
+      "840534001": {
+        "display": "SARS-CoV-2 vaccination",
+        "parents": []
+      },
+      "12866006": {
+        "display": "Pneumococcal vaccination",
+        "parents": []
+      },
+      "37796009": {
+        "display": "Migraine",
+        "parents": []
+      },
+      "266919005": {
+        "display": "Never smoked tobacco",
+        "parents": []
+      }
+    },
+    "http://loinc.org": {
+      "14682-9": {
+        "display": "Creatinine [Moles/volume] in Serum or Plasma",
+        "analyte": "creatinine"
+      },
+      "98979-8": {
+        "display": "Glomerular filtration rate/1.73 sq M.predicted (CKD-EPI 2021)",
+        "analyte": "egfr-2021"
+      },
+      "62238-1": {
+        "display": "Glomerular filtration rate/1.73 sq M.predicted (CKD-EPI 2009)",
+        "analyte": "egfr-2009"
+      },
+      "2823-3": {
+        "display": "Potassium [Moles/volume] in Serum or Plasma",
+        "analyte": "potassium"
+      },
+      "59261-8": {
+        "display": "Hemoglobin A1c/Hemoglobin.total in Blood by IFCC protocol",
+        "analyte": "hba1c"
+      },
+      "4548-4": {
+        "display": "Hemoglobin A1c/Hemoglobin.total in Blood",
+        "analyte": "hba1c"
+      },
+      "8480-6": {
+        "display": "Systolic blood pressure",
+        "analyte": "sbp"
+      },
+      "8462-4": {
+        "display": "Diastolic blood pressure",
+        "analyte": "dbp"
+      }
+    }
+  },
+  "analytes": {
+    "creatinine": {
+      "label": "Serum creatinine",
+      "unit": "umol/L",
+      "code": "14682-9"
+    },
+    "egfr-2021": {
+      "label": "eGFR (CKD-EPI 2021)",
+      "unit": "mL/min/{1.73_m2}",
+      "code": "98979-8",
+      "note": "Different estimating equation from CKD-EPI 2009; values are related, not interchangeable"
+    },
+    "egfr-2009": {
+      "label": "eGFR (CKD-EPI 2009)",
+      "unit": "mL/min/{1.73_m2}",
+      "code": "62238-1",
+      "note": "Different estimating equation from CKD-EPI 2021; values are related, not interchangeable"
+    },
+    "potassium": {
+      "label": "Potassium",
+      "unit": "mmol/L",
+      "code": "2823-3"
+    },
+    "hba1c": {
+      "label": "HbA1c",
+      "unit": "mmol/mol",
+      "code": "59261-8"
+    },
+    "sbp": {
+      "label": "Systolic blood pressure",
+      "unit": "mm[Hg]",
+      "code": "8480-6"
+    },
+    "dbp": {
+      "label": "Diastolic blood pressure",
+      "unit": "mm[Hg]",
+      "code": "8462-4"
+    }
+  },
+  "medicines": {
+    "VMP-MET500": {
+      "display": "Metformin 500mg tablets",
+      "vtm": "metformin",
+      "strength_mg": 500,
+      "form": "tablet"
+    },
+    "VMP-RAM5": {
+      "display": "Ramipril 5mg capsules",
+      "vtm": "ramipril",
+      "strength_mg": 5,
+      "form": "capsule"
+    },
+    "VMP-ATO20": {
+      "display": "Atorvastatin 20mg tablets",
+      "vtm": "atorvastatin",
+      "strength_mg": 20,
+      "form": "tablet"
+    },
+    "VMP-AML5": {
+      "display": "Amlodipine 5mg tablets",
+      "vtm": "amlodipine",
+      "strength_mg": 5,
+      "form": "tablet"
+    },
+    "VMP-API5": {
+      "display": "Apixaban 5mg tablets",
+      "vtm": "apixaban",
+      "strength_mg": 5,
+      "form": "tablet"
+    },
+    "VMP-BIS25": {
+      "display": "Bisoprolol 2.5mg tablets",
+      "vtm": "bisoprolol",
+      "strength_mg": 2.5,
+      "form": "tablet"
+    },
+    "VMP-DOX100": {
+      "display": "Doxycycline 100mg capsules",
+      "vtm": "doxycycline",
+      "strength_mg": 100,
+      "form": "capsule"
+    },
+    "VMP-SAL100": {
+      "display": "Salbutamol 100micrograms/dose inhaler",
+      "vtm": "salbutamol",
+      "strength_mg": 0.1,
+      "form": "dose"
+    },
+    "VMP-BEC100": {
+      "display": "Beclometasone 100micrograms/dose inhaler",
+      "vtm": "beclometasone",
+      "strength_mg": 0.1,
+      "form": "dose"
+    },
+    "VMP-PRED5": {
+      "display": "Prednisolone 5mg tablets",
+      "vtm": "prednisolone",
+      "strength_mg": 5,
+      "form": "tablet"
+    },
+    "VMP-GLI80": {
+      "display": "Gliclazide 80mg tablets",
+      "vtm": "gliclazide",
+      "strength_mg": 80,
+      "form": "tablet"
+    }
+  },
+  "vtms": {
+    "metformin": "Metformin",
+    "ramipril": "Ramipril",
+    "atorvastatin": "Atorvastatin",
+    "amlodipine": "Amlodipine",
+    "apixaban": "Apixaban",
+    "bisoprolol": "Bisoprolol",
+    "doxycycline": "Doxycycline",
+    "salbutamol": "Salbutamol",
+    "beclometasone": "Beclometasone",
+    "prednisolone": "Prednisolone",
+    "gliclazide": "Gliclazide"
+  },
+  "concept_maps": [
+    {
+      "id": "cm:icd10-snomed",
+      "version": "1.2",
+      "lifecycle": "approved",
+      "source": "http://hl7.org/fhir/sid/icd-10",
+      "target": "http://snomed.info/sct",
+      "author": "Terminology and Mapping Authority",
+      "reviewed": "2026-08-01",
+      "elements": [
+        {
+          "code": "E11.9",
+          "display": "Type 2 diabetes mellitus without complications",
+          "target": "313436004",
+          "grade": "exact"
+        },
+        {
+          "code": "N18.3",
+          "display": "Chronic kidney disease, stage 3",
+          "target": "433144002",
+          "grade": "exact"
+        },
+        {
+          "code": "I10",
+          "display": "Essential (primary) hypertension",
+          "target": "59621000",
+          "grade": "exact"
+        }
+      ]
+    },
+    {
+      "id": "cm:ha-formulary-dmd",
+      "version": "3.0",
+      "lifecycle": "approved",
+      "source": "urn:demo:hospital-a-formulary",
+      "target": "urn:demo:dmd",
+      "author": "Hospital A pharmacy informatics",
+      "reviewed": "2026-06-15",
+      "elements": [
+        {
+          "code": "HA-F-0412",
+          "display": "Metformin 500mg tab",
+          "target": "VMP-MET500",
+          "grade": "exact"
+        },
+        {
+          "code": "HA-F-0233",
+          "display": "Ramipril 5mg cap",
+          "target": "VMP-RAM5",
+          "grade": "exact"
+        },
+        {
+          "code": "HA-F-0301",
+          "display": "Atorvastatin 20mg tab",
+          "target": "VMP-ATO20",
+          "grade": "exact"
+        },
+        {
+          "code": "HA-F-0877",
+          "display": "Amlodipine 5mg tab",
+          "target": "VMP-AML5",
+          "grade": "exact"
+        }
+      ]
+    },
+    {
+      "id": "cm:gp-tests-loinc",
+      "version": "1.1",
+      "lifecycle": "approved",
+      "source": "urn:demo:gp-local-test",
+      "target": "http://loinc.org",
+      "author": "Terminology and Mapping Authority",
+      "reviewed": "2026-07-20",
+      "elements": [
+        {
+          "code": "HBA1C",
+          "display": "HbA1c (IFCC)",
+          "target": "59261-8",
+          "grade": "exact"
+        },
+        {
+          "code": "HBA1C_DCCT",
+          "display": "HbA1c (DCCT, legacy import)",
+          "target": "4548-4",
+          "grade": "exact"
+        },
+        {
+          "code": "SBP",
+          "display": "Systolic BP",
+          "target": "8480-6",
+          "grade": "exact"
+        },
+        {
+          "code": "DBP",
+          "display": "Diastolic BP",
+          "target": "8462-4",
+          "grade": "exact"
+        }
+      ]
+    }
+  ]
+}
